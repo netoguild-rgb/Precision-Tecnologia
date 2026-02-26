@@ -367,6 +367,7 @@ export default function HomePage() {
                 name: "CloudEngine S5735-L-V2",
                 cat: "Switch Campus",
                 sku: "98012021",
+                image: "/images/products/cloudengine-s5735-l-v2.png",
                 price: "R$ 2.890,00",
                 installment: "12x R$ 240,83",
                 stock: "Em Estoque",
@@ -376,6 +377,7 @@ export default function HomePage() {
                 name: "AirEngine 5773-22P",
                 cat: "Access Point Wi-Fi 6",
                 sku: "50084766",
+                image: "/images/products/airengine-5773-22p.png",
                 price: "R$ 1.450,00",
                 installment: "12x R$ 120,83",
                 stock: "Em Estoque",
@@ -385,6 +387,7 @@ export default function HomePage() {
                 name: "SFP+ 10G LR 10km",
                 cat: "GBIC / Módulo Óptico",
                 sku: "34060599",
+                image: "/images/products/sfp-plus-10g-lr-10km.png",
                 price: "R$ 320,00",
                 installment: "3x R$ 106,67",
                 stock: "Em Estoque",
@@ -394,6 +397,7 @@ export default function HomePage() {
                 name: "NetEngine AR650",
                 cat: "Roteador Enterprise",
                 sku: "02311TSJ",
+                image: "/images/products/netengine-ar650.png",
                 price: "R$ 3.200,00",
                 installment: "12x R$ 266,67",
                 stock: "Sob Encomenda",
@@ -404,10 +408,20 @@ export default function HomePage() {
                 key={product.name}
                 className="product-card rounded-2xl overflow-hidden group"
               >
-                {/* Image placeholder */}
+                {/* Image */}
                 <div className="aspect-square bg-[var(--color-bg-elevated)] flex items-center justify-center p-8 relative overflow-hidden border-b border-[var(--color-border)]">
-                  <div className="w-full h-full rounded-xl bg-white flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
-                    <Network size={48} className="text-[var(--color-border)]" />
+                  <div className="relative w-full h-full rounded-xl bg-white overflow-hidden flex items-center justify-center">
+                    {product.image ? (
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      />
+                    ) : (
+                      <Network size={48} className="text-[var(--color-border)]" />
+                    )}
                   </div>
                   {/* Stock badge */}
                   <span

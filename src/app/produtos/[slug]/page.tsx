@@ -99,8 +99,18 @@ export default function ProductDetailPage() {
                     <div>
                         {/* Main image */}
                         <div className="aspect-square bg-[var(--color-bg-elevated)] rounded-2xl flex items-center justify-center border border-[var(--color-border)] mb-4 overflow-hidden relative group">
-                            <div className="w-3/4 h-3/4 bg-white rounded-xl flex items-center justify-center">
-                                <Network size={80} className="text-[var(--color-border-hover)]" />
+                            <div className="relative w-full h-full bg-white rounded-xl overflow-hidden flex items-center justify-center">
+                                {product.images[selectedImage] ? (
+                                    <Image
+                                        src={product.images[selectedImage]}
+                                        alt={product.name}
+                                        fill
+                                        className="object-contain p-8 group-hover:scale-105 transition-transform duration-500"
+                                        sizes="(max-width: 1024px) 100vw, 50vw"
+                                    />
+                                ) : (
+                                    <Network size={80} className="text-[var(--color-border-hover)]" />
+                                )}
                             </div>
                             {/* Stock badge */}
                             <span className={`absolute top-4 left-4 badge-stock ${product.stockStatus === "IN_STOCK" ? "badge-stock-available" : "badge-stock-order"
@@ -117,20 +127,45 @@ export default function ProductDetailPage() {
                         </div>
 
                         {/* Thumbnail strip */}
-                        <div className="grid grid-cols-5 gap-2">
-                            {["Frente", "Traseira", "Lateral", "Interface", "No Rack"].map((label, i) => (
-                                <button
-                                    key={label}
-                                    onClick={() => setSelectedImage(i)}
-                                    className={`aspect-square rounded-xl border flex items-center justify-center text-[10px] text-[var(--color-text-dim)] transition-all ${selectedImage === i
-                                        ? "border-[var(--color-primary)] bg-[var(--color-primary)]/5"
-                                        : "border-[var(--color-border)] bg-[var(--color-bg-elevated)] hover:border-[var(--color-border-hover)]"
-                                        }`}
-                                >
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
+                        {product.images.length > 0 ? (
+                            <div className="grid grid-cols-5 gap-2">
+                                {product.images.map((imageUrl, i) => (
+                                    <button
+                                        key={`${product.id}-${i}`}
+                                        onClick={() => setSelectedImage(i)}
+                                        className={`aspect-square rounded-xl border bg-white overflow-hidden transition-all ${selectedImage === i
+                                            ? "border-[var(--color-primary)]"
+                                            : "border-[var(--color-border)] hover:border-[var(--color-border-hover)]"
+                                            }`}
+                                    >
+                                        <div className="relative w-full h-full">
+                                            <Image
+                                                src={imageUrl}
+                                                alt={`${product.name} ${i + 1}`}
+                                                fill
+                                                className="object-contain p-1"
+                                                sizes="96px"
+                                            />
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-5 gap-2">
+                                {["Frente", "Traseira", "Lateral", "Interface", "No Rack"].map((label, i) => (
+                                    <button
+                                        key={label}
+                                        onClick={() => setSelectedImage(i)}
+                                        className={`aspect-square rounded-xl border flex items-center justify-center text-[10px] text-[var(--color-text-dim)] transition-all ${selectedImage === i
+                                            ? "border-[var(--color-primary)] bg-[var(--color-primary)]/5"
+                                            : "border-[var(--color-border)] bg-[var(--color-bg-elevated)] hover:border-[var(--color-border-hover)]"
+                                            }`}
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Right — Product Info + Buy Box */}

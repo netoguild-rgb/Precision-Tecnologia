@@ -70,7 +70,7 @@ export const mockProducts: Product[] = [
         poe: true,
         poeWatts: 370,
         featured: true,
-        images: [],
+        images: ["/images/products/cloudengine-s5735-l-v2.png"],
     },
     {
         id: "sw-002",
@@ -99,7 +99,7 @@ export const mockProducts: Product[] = [
         manageable: true,
         poe: false,
         featured: false,
-        images: [],
+        images: ["/images/products/switch-48p.png"],
     },
     {
         id: "sw-003",
@@ -156,7 +156,7 @@ export const mockProducts: Product[] = [
         poeWatts: 370,
         featured: true,
         isNew: true,
-        images: [],
+        images: ["/images/products/switch-24p.png"],
     },
 
     // ============ ROTEADORES ============
@@ -181,7 +181,7 @@ export const mockProducts: Product[] = [
             "VPN": "IPsec, GRE, L2TP",
         },
         featured: true,
-        images: [],
+        images: ["/images/products/netengine-ar650.png"],
     },
     {
         id: "rt-002",
@@ -230,7 +230,7 @@ export const mockProducts: Product[] = [
         },
         wifiStandard: "Wi-Fi 6",
         featured: true,
-        images: [],
+        images: ["/images/products/airengine-5773-22p.png"],
     },
     {
         id: "ap-002",
@@ -286,7 +286,7 @@ export const mockProducts: Product[] = [
         distance: "10km",
         speed: "10G",
         featured: true,
-        images: [],
+        images: ["/images/products/sfp-plus-10g-lr-10km.png"],
     },
     {
         id: "sfp-002",

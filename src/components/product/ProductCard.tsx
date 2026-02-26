@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Network, Package } from "lucide-react";
 import { Product } from "@/lib/mock-products";
 
@@ -14,8 +15,18 @@ export function ProductCard({ product }: ProductCardProps) {
         >
             {/* Image */}
             <div className="aspect-[4/3] bg-[var(--color-bg-elevated)] flex items-center justify-center p-6 relative overflow-hidden border-b border-[var(--color-border)]">
-                <div className="w-full h-full rounded-xl bg-white flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
-                    <Network size={40} className="text-[var(--color-border-hover)]" />
+                <div className="relative w-full h-full rounded-xl bg-white overflow-hidden flex items-center justify-center">
+                    {product.images[0] ? (
+                        <Image
+                            src={product.images[0]}
+                            alt={product.name}
+                            fill
+                            className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                        />
+                    ) : (
+                        <Network size={40} className="text-[var(--color-border-hover)]" />
+                    )}
                 </div>
 
                 {/* Stock badge */}
