@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
     Bot,
+    ChevronRight,
     Loader2,
     MessageCircle,
     SendHorizontal,
@@ -36,6 +37,12 @@ type ChatMessage = {
 };
 
 const SESSION_STORAGE_KEY = "precision_sales_assistant_session";
+const GREETING_REGEX = /^(oi|ola|ol[aá]|bom dia|boa tarde|boa noite|e ai|e aí)$/i;
+const QUICK_PROMPTS = [
+    "Preciso de switch 24 portas para empresa",
+    "Quero cotacao para 10 access points Wi-Fi 6",
+    "Preciso de GBIC 10G para fibra monomodo",
+];
 
 function formatCurrency(value: number): string {
     return value.toLocaleString("pt-BR", {
@@ -107,14 +114,19 @@ export function SalesAssistantWidget() {
     const canSend = useMemo(() => {
         return input.trim().length > 0 && !sending && sessionId.length > 0;
     }, [input, sending, sessionId]);
+    const hasUserMessages = useMemo(
+        () => messages.some((message) => message.role === "user"),
+        [messages]
+    );
 
-    async function sendMessage(event?: FormEvent) {
+    async function sendMessage(event?: FormEvent, presetMessage?: string) {
         event?.preventDefault();
-        if (!canSend) return;
+        const message = (presetMessage ?? input).trim();
+        if (!message || sending || sessionId.length === 0) return;
 
-        const message = input.trim();
-        setInput("");
-        setSending(true);
+        if (!presetMessage) {
+            setInput("");
+        }
 
         const userMessage: ChatMessage = {
             id: `user_${Date.now()}`,
@@ -123,6 +135,22 @@ export function SalesAssistantWidget() {
         };
 
         setMessages((prev) => [...prev, userMessage]);
+        const isFirstInteraction = !hasUserMessages;
+
+        if (isFirstInteraction && GREETING_REGEX.test(message)) {
+            setMessages((prev) => [
+                ...prev,
+                {
+                    id: `assistant_quick_${Date.now()}`,
+                    role: "assistant",
+                    content:
+                        "Perfeito. Me diga o produto ou projeto que voce precisa e eu te trago opcoes objetivas de compra.",
+                },
+            ]);
+            return;
+        }
+
+        setSending(true);
 
         try {
             const response = await fetch("/api/ai/sales", {
@@ -160,7 +188,7 @@ export function SalesAssistantWidget() {
                     id: `assistant_error_${Date.now()}`,
                     role: "assistant",
                     content:
-                        "Nao consegui responder agora. Tente novamente em instantes ou fale com nosso time comercial no WhatsApp.",
+                        "Nao consegui responder agora. Tente novamente em instantes.",
                 },
             ]);
         } finally {
@@ -168,16 +196,27 @@ export function SalesAssistantWidget() {
         }
     }
 
+    function handleInputKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            void sendMessage();
+        }
+    }
+
+    function sendQuickPrompt(prompt: string) {
+        void sendMessage(undefined, prompt);
+    }
+
     return (
         <>
             {isOpen && (
-                <div className="fixed bottom-[9.5rem] right-3 z-[9997] w-[calc(100vw-1.5rem)] max-w-[390px] rounded-2xl border border-[var(--color-border)] bg-white shadow-2xl overflow-hidden">
+                <div className="fixed z-[9998] bottom-24 left-3 right-3 md:left-auto md:right-6 md:w-[390px] rounded-2xl border border-[var(--color-border)] bg-white shadow-2xl overflow-hidden">
                     <div className="bg-[var(--color-primary-dark)] text-white px-4 py-3 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Bot size={16} />
                             <div>
                                 <p className="text-sm font-semibold leading-none">Assistente de Vendas</p>
-                                <p className="text-[11px] text-white/80 mt-1">Online</p>
+                                <p className="text-[11px] text-white/80 mt-1">Resposta rapida para compra B2B</p>
                             </div>
                         </div>
                         <button
@@ -190,14 +229,34 @@ export function SalesAssistantWidget() {
                         </button>
                     </div>
 
-                    <div ref={scrollRef} className="h-[380px] overflow-y-auto px-3 py-3 space-y-3 bg-[var(--color-bg-elevated)]">
+                    <div ref={scrollRef} className="h-[58vh] max-h-[460px] min-h-[320px] overflow-y-auto px-3 py-3 space-y-3 bg-[var(--color-bg-elevated)]">
+                        {!hasUserMessages && (
+                            <div className="space-y-2">
+                                <p className="text-[11px] uppercase tracking-wide text-[var(--color-text-dim)] px-1">
+                                    Sugestoes rapidas
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {QUICK_PROMPTS.map((prompt) => (
+                                        <button
+                                            key={prompt}
+                                            type="button"
+                                            onClick={() => sendQuickPrompt(prompt)}
+                                            className="text-xs bg-white border border-[var(--color-border)] text-[var(--color-text)] rounded-full px-3 py-1.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors"
+                                        >
+                                            {prompt}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {messages.map((message) => (
                             <div
                                 key={message.id}
                                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                             >
                                 <div
-                                    className={`max-w-[85%] rounded-2xl px-3 py-2.5 text-sm ${
+                                    className={`max-w-[88%] rounded-2xl px-3 py-2.5 text-sm ${
                                         message.role === "user"
                                             ? "bg-[var(--color-primary)] text-white rounded-br-md"
                                             : "bg-white border border-[var(--color-border)] text-[var(--color-text)] rounded-bl-md"
@@ -220,19 +279,38 @@ export function SalesAssistantWidget() {
                                                     onClick={() => setIsOpen(false)}
                                                     className="block rounded-xl border border-[var(--color-border)] p-2.5 hover:border-[var(--color-primary)] hover:bg-[var(--color-bg-elevated)] transition-colors"
                                                 >
-                                                    <p className="text-xs font-semibold text-[var(--color-text)] line-clamp-2">
-                                                        {product.name}
-                                                    </p>
-                                                    <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
-                                                        SKU {product.sku}
-                                                    </p>
-                                                    <div className="mt-1.5 flex items-center justify-between text-[11px]">
-                                                        <span className="font-semibold text-[var(--color-primary)]">
-                                                            {formatCurrency(product.price)}
-                                                        </span>
-                                                        <span className="text-[var(--color-text-dim)]">
-                                                            {stockLabel(product.stockStatus)}
-                                                        </span>
+                                                    <div className="flex gap-2.5">
+                                                        <div className="w-14 h-14 rounded-lg border border-[var(--color-border)] bg-white overflow-hidden shrink-0">
+                                                            {product.image ? (
+                                                                // eslint-disable-next-line @next/next/no-img-element
+                                                                <img
+                                                                    src={product.image}
+                                                                    alt={product.name}
+                                                                    className="w-full h-full object-contain p-1"
+                                                                    loading="lazy"
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center text-[10px] text-[var(--color-text-dim)]">
+                                                                    Sem imagem
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="min-w-0 flex-1">
+                                                            <p className="text-xs font-semibold text-[var(--color-text)] line-clamp-2">
+                                                                {product.name}
+                                                            </p>
+                                                            <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                                                                SKU {product.sku}
+                                                            </p>
+                                                            <div className="mt-1.5 flex items-center justify-between text-[11px]">
+                                                                <span className="font-semibold text-[var(--color-primary)]">
+                                                                    {formatCurrency(product.price)}
+                                                                </span>
+                                                                <span className="text-[var(--color-text-dim)]">
+                                                                    {stockLabel(product.stockStatus)}
+                                                                </span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </Link>
                                             ))}
@@ -258,6 +336,7 @@ export function SalesAssistantWidget() {
                                 rows={1}
                                 value={input}
                                 onChange={(event) => setInput(event.target.value)}
+                                onKeyDown={handleInputKeyDown}
                                 placeholder="Ex: preciso de switch 24 portas para empresa"
                                 className="flex-1 resize-none rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]"
                                 maxLength={1200}
@@ -278,12 +357,17 @@ export function SalesAssistantWidget() {
             <button
                 type="button"
                 onClick={() => setIsOpen((prev) => !prev)}
-                className="fixed bottom-[9.5rem] right-3 z-[9998] h-14 w-14 rounded-full bg-[var(--color-primary)] text-white shadow-xl border border-white/20 hover:bg-[var(--color-primary-dark)] transition-all"
+                className="fixed bottom-6 right-4 md:right-6 z-[9999] h-14 w-14 rounded-full bg-[var(--color-primary)] text-white shadow-xl border border-white/20 hover:bg-[var(--color-primary-dark)] transition-all"
                 aria-label="Abrir assistente de vendas"
             >
                 <span className="relative inline-flex items-center justify-center">
                     <MessageCircle size={22} />
                     <Sparkles size={12} className="absolute -right-3 -top-2 text-cyan-200" />
+                    {!isOpen && (
+                        <span className="absolute -bottom-3 -right-3 text-[10px] font-semibold bg-white text-[var(--color-primary)] border border-[var(--color-border)] rounded-full px-1.5 py-0.5 inline-flex items-center gap-0.5">
+                            Chat <ChevronRight size={10} />
+                        </span>
+                    )}
                 </span>
             </button>
         </>

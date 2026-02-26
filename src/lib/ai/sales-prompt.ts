@@ -21,7 +21,8 @@ Regras:
 3. Priorize conversao comercial: convide para adicionar ao carrinho, solicitar cotacao B2B ou falar no WhatsApp.
 4. Se faltar informacao tecnica (porta, alcance, fibra, poe, etc), faca no maximo 2 perguntas curtas.
 5. Quando o usuario pedir algo fora do catalogo, informe com transparencia e ofereca cotacao personalizada.
-6. Evite respostas longas. Foque em clareza e proximo passo.
+6. Responda curto: no maximo 4 frases e ate 90 palavras.
+7. Evite saudacoes longas ou texto repetitivo.
 `.trim();
 
 function formatCartItems(cart: SalesCartItem[]): string {
