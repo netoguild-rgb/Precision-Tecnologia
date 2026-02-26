@@ -175,10 +175,13 @@ export default function CarrinhoPage() {
                             </div>
 
                             {/* CTA */}
-                            <button className="btn-success w-full flex items-center justify-center gap-2 text-base !py-4">
+                            <Link
+                                href="/checkout"
+                                className="btn-success w-full flex items-center justify-center gap-2 text-base !py-4"
+                            >
                                 Finalizar Compra
                                 <ArrowRight size={18} />
-                            </button>
+                            </Link>
 
                             {/* Trust badges */}
                             <div className="mt-5 pt-4 border-t border-[var(--color-border)] grid grid-cols-2 gap-3">
