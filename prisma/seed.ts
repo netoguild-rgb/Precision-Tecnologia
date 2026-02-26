@@ -537,6 +537,19 @@ async function main() {
         { key: "free_shipping_above", value: "5000", type: "number" },
         { key: "max_installments", value: "12", type: "number" },
         { key: "pix_discount_percent", value: "5", type: "number" },
+        { key: "payment_provider", value: "STRIPE", type: "string" },
+        { key: "payment_methods_enabled", value: "[\"PIX\",\"CREDIT_CARD\",\"BOLETO\",\"B2B_INVOICE\"]", type: "json" },
+        { key: "pix_expiration_minutes", value: "30", type: "number" },
+        { key: "boleto_due_days", value: "2", type: "number" },
+        { key: "card_installments_no_interest_max", value: "6", type: "number" },
+        { key: "card_3ds_required_above", value: "2000", type: "number" },
+        { key: "pix_discount_tier_1_max", value: "3000", type: "number" },
+        { key: "pix_discount_tier_1_percent", value: "5", type: "number" },
+        { key: "pix_discount_tier_2_max", value: "15000", type: "number" },
+        { key: "pix_discount_tier_2_percent", value: "3", type: "number" },
+        { key: "pix_discount_tier_3_percent", value: "2", type: "number" },
+        { key: "b2b_invoice_enabled", value: "true", type: "boolean" },
+        { key: "b2b_invoice_terms_days", value: "[30,60,90]", type: "json" },
     ];
 
     for (const setting of settings) {
