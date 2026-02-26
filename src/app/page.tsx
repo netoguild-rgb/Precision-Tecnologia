@@ -538,14 +538,13 @@ export default function HomePage() {
             height={40}
             className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0"
           />
-          {["Mikrotik"].map((brand) => (
-            <span
-              key={brand}
-              className="text-lg md:text-xl font-bold tracking-wider text-[var(--color-text-dim)] opacity-40 hover:opacity-80 hover:text-[var(--color-text)] transition-all duration-300"
-            >
-              {brand}
-            </span>
-          ))}
+          <Image
+            src="/images/mikrotik-logo.png"
+            alt="MikroTik"
+            width={180}
+            height={40}
+            className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0"
+          />
         </div>
       </section>
     </div>
