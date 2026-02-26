@@ -18,11 +18,11 @@ export function Footer() {
                     <div>
                         <div className="flex items-center gap-3 mb-4">
                             <Image
-                                src="/images/precision-logo.png"
+                                src="/images/precision-logo-cropped.png"
                                 alt="Precision Tecnologia"
-                                width={160}
-                                height={40}
-                                className="h-8 w-auto"
+                                width={802}
+                                height={230}
+                                className="h-10 sm:h-11 w-auto"
                             />
                         </div>
                         <div className="flex items-center gap-3 mb-4">
@@ -31,7 +31,7 @@ export function Footer() {
                                 alt="Huawei"
                                 width={70}
                                 height={22}
-                                className="h-5 w-auto opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all"
+                                className="h-6 w-auto opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition-all"
                             />
                             <div className="h-4 w-px bg-[var(--color-border)]" />
                             <Image
@@ -39,7 +39,7 @@ export function Footer() {
                                 alt="Furukawa"
                                 width={80}
                                 height={24}
-                                className="h-5 w-auto opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all"
+                                className="h-6 w-auto opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition-all"
                             />
                         </div>
                         <p className="text-sm text-[var(--color-text-muted)] mb-4 leading-relaxed">
