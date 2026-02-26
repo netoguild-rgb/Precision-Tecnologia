@@ -2,15 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
-import {
-    Bot,
-    ChevronRight,
-    Loader2,
-    MessageCircle,
-    SendHorizontal,
-    Sparkles,
-    X,
-} from "lucide-react";
+import { Bot, Loader2, MessageCircle, SendHorizontal, Sparkles, X } from "lucide-react";
 
 type AssistantSuggestion = {
     slug: string;
@@ -118,6 +110,7 @@ export function SalesAssistantWidget() {
     const canSend = useMemo(() => {
         return input.trim().length > 0 && !sending && sessionId.length > 0;
     }, [input, sending, sessionId]);
+
     const hasUserMessages = useMemo(
         () => messages.some((message) => message.role === "user"),
         [messages]
@@ -193,8 +186,7 @@ export function SalesAssistantWidget() {
                 {
                     id: `assistant_error_${Date.now()}`,
                     role: "assistant",
-                    content:
-                        "Nao consegui responder agora. Tente novamente em instantes.",
+                    content: "Nao consegui responder agora. Tente novamente em instantes.",
                 },
             ]);
         } finally {
@@ -216,26 +208,31 @@ export function SalesAssistantWidget() {
     return (
         <>
             {isOpen && (
-                <div className="fixed z-[9998] bottom-24 left-3 right-3 md:left-auto md:right-6 md:w-[390px] rounded-2xl border border-[var(--color-border)] bg-white shadow-2xl overflow-hidden">
-                    <div className="bg-[var(--color-primary-dark)] text-white px-4 py-3 flex items-center justify-between">
+                <div className="sales-chat-panel fixed z-[9998] bottom-24 left-3 right-3 md:left-auto md:right-6 md:w-[390px] rounded-3xl border border-white/40 bg-white/90 shadow-[0_24px_80px_rgba(11,39,81,0.28)] backdrop-blur-xl overflow-hidden">
+                    <div className="sales-chat-header text-white px-4 py-3.5 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <Bot size={16} />
+                            <span className="h-8 w-8 rounded-xl bg-white/18 border border-white/20 inline-flex items-center justify-center">
+                                <Bot size={15} />
+                            </span>
                             <div>
-                                <p className="text-sm font-semibold leading-none">Assistente de Vendas</p>
-                                <p className="text-[11px] text-white/80 mt-1">Resposta rapida para compra B2B</p>
+                                <p className="text-sm font-semibold leading-none tracking-tight">Assistente de Vendas</p>
+                                <p className="text-[11px] text-white/85 mt-1">Resposta rapida para compra B2B</p>
                             </div>
                         </div>
                         <button
                             type="button"
                             onClick={() => setIsOpen(false)}
-                            className="w-7 h-7 rounded-lg border border-white/20 inline-flex items-center justify-center hover:bg-white/10"
+                            className="w-8 h-8 rounded-xl border border-white/20 inline-flex items-center justify-center hover:bg-white/15 transition-colors"
                             aria-label="Fechar assistente"
                         >
                             <X size={14} />
                         </button>
                     </div>
 
-                    <div ref={scrollRef} className="h-[58vh] max-h-[460px] min-h-[320px] overflow-y-auto px-3 py-3 space-y-3 bg-[var(--color-bg-elevated)]">
+                    <div
+                        ref={scrollRef}
+                        className="h-[58vh] max-h-[460px] min-h-[320px] overflow-y-auto px-3 py-3 space-y-3 bg-gradient-to-b from-[#eef4fb] via-[#f8fbff] to-white"
+                    >
                         {!hasUserMessages && (
                             <div className="space-y-2">
                                 <p className="text-[11px] uppercase tracking-wide text-[var(--color-text-dim)] px-1">
@@ -247,7 +244,7 @@ export function SalesAssistantWidget() {
                                             key={prompt}
                                             type="button"
                                             onClick={() => sendQuickPrompt(prompt)}
-                                            className="text-xs bg-white border border-[var(--color-border)] text-[var(--color-text)] rounded-full px-3 py-1.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors"
+                                            className="text-xs bg-white/95 border border-[#d5e2f3] text-[var(--color-text)] rounded-full px-3 py-1.5 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] hover:bg-white transition-colors"
                                         >
                                             {prompt}
                                         </button>
@@ -262,10 +259,10 @@ export function SalesAssistantWidget() {
                                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                             >
                                 <div
-                                    className={`max-w-[88%] rounded-2xl px-3 py-2.5 text-sm ${
+                                    className={`max-w-[88%] rounded-2xl px-3 py-2.5 text-sm shadow-sm ${
                                         message.role === "user"
-                                            ? "bg-[var(--color-primary)] text-white rounded-br-md"
-                                            : "bg-white border border-[var(--color-border)] text-[var(--color-text)] rounded-bl-md"
+                                            ? "bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] text-white rounded-br-md border border-white/15"
+                                            : "bg-white/96 border border-[#dce7f5] text-[var(--color-text)] rounded-bl-md"
                                     }`}
                                 >
                                     <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
@@ -286,7 +283,7 @@ export function SalesAssistantWidget() {
                                                     key={`${message.id}_${product.slug}`}
                                                     href={`/produtos/${product.slug}`}
                                                     onClick={() => setIsOpen(false)}
-                                                    className="block rounded-xl border border-[var(--color-border)] p-2.5 hover:border-[var(--color-primary)] hover:bg-[var(--color-bg-elevated)] transition-colors"
+                                                    className="block rounded-xl border border-[#dce7f5] bg-white p-2.5 hover:border-[var(--color-primary)] hover:shadow-md transition-all"
                                                 >
                                                     <div className="flex gap-2.5">
                                                         <div className="w-14 h-14 rounded-lg border border-[var(--color-border)] bg-white overflow-hidden shrink-0">
@@ -326,33 +323,34 @@ export function SalesAssistantWidget() {
                                         </div>
                                     )}
 
-                                    {message.complementarySuggestions && message.complementarySuggestions.length > 0 && (
-                                        <div className="mt-3 space-y-2">
-                                            <p className="text-[11px] uppercase tracking-wide text-[var(--color-text-dim)] px-0.5">
-                                                Complementares
-                                            </p>
-                                            {message.complementarySuggestions.slice(0, 2).map((product) => (
-                                                <Link
-                                                    key={`${message.id}_comp_${product.slug}`}
-                                                    href={`/produtos/${product.slug}`}
-                                                    onClick={() => setIsOpen(false)}
-                                                    className="block rounded-xl border border-[var(--color-border)] p-2 hover:border-[var(--color-primary)] hover:bg-[var(--color-bg-elevated)] transition-colors"
-                                                >
-                                                    <div className="flex items-center justify-between gap-2">
-                                                        <p className="text-xs font-semibold text-[var(--color-text)] line-clamp-1">
-                                                            {product.name}
+                                    {message.complementarySuggestions &&
+                                        message.complementarySuggestions.length > 0 && (
+                                            <div className="mt-3 space-y-2">
+                                                <p className="text-[11px] uppercase tracking-wide text-[var(--color-text-dim)] px-0.5">
+                                                    Complementares
+                                                </p>
+                                                {message.complementarySuggestions.slice(0, 2).map((product) => (
+                                                    <Link
+                                                        key={`${message.id}_comp_${product.slug}`}
+                                                        href={`/produtos/${product.slug}`}
+                                                        onClick={() => setIsOpen(false)}
+                                                        className="block rounded-xl border border-[#dce7f5] bg-white p-2 hover:border-[var(--color-primary)] hover:shadow-sm transition-all"
+                                                    >
+                                                        <div className="flex items-center justify-between gap-2">
+                                                            <p className="text-xs font-semibold text-[var(--color-text)] line-clamp-1">
+                                                                {product.name}
+                                                            </p>
+                                                            <span className="text-[11px] font-semibold text-[var(--color-primary)]">
+                                                                {formatCurrency(product.price)}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                                                            SKU {product.sku} | {stockLabel(product.stockStatus)}
                                                         </p>
-                                                        <span className="text-[11px] font-semibold text-[var(--color-primary)]">
-                                                            {formatCurrency(product.price)}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
-                                                        SKU {product.sku} • {stockLabel(product.stockStatus)}
-                                                    </p>
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    )}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        )}
 
                                     {message.categories && message.categories.length > 0 && (
                                         <div className="mt-3">
@@ -379,7 +377,7 @@ export function SalesAssistantWidget() {
 
                         {sending && (
                             <div className="flex justify-start">
-                                <div className="max-w-[85%] rounded-2xl rounded-bl-md px-3 py-2 bg-white border border-[var(--color-border)] text-[var(--color-text)] text-sm inline-flex items-center gap-2">
+                                <div className="max-w-[85%] rounded-2xl rounded-bl-md px-3 py-2 bg-white border border-[#dce7f5] text-[var(--color-text)] text-sm inline-flex items-center gap-2">
                                     <Loader2 size={14} className="animate-spin text-[var(--color-primary)]" />
                                     Analisando sua necessidade...
                                 </div>
@@ -387,7 +385,7 @@ export function SalesAssistantWidget() {
                         )}
                     </div>
 
-                    <form onSubmit={sendMessage} className="p-3 border-t border-[var(--color-border)] bg-white">
+                    <form onSubmit={sendMessage} className="p-3 border-t border-[#dce7f5] bg-white/95 backdrop-blur-sm">
                         <div className="flex items-end gap-2">
                             <textarea
                                 rows={1}
@@ -395,16 +393,20 @@ export function SalesAssistantWidget() {
                                 onChange={(event) => setInput(event.target.value)}
                                 onKeyDown={handleInputKeyDown}
                                 placeholder="Ex: preciso de switch 24 portas para empresa"
-                                className="flex-1 resize-none rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)]"
+                                className="flex-1 resize-none rounded-xl border border-[#dce7f5] bg-[#f7faff] px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10"
                                 maxLength={1200}
                             />
                             <button
                                 type="submit"
                                 disabled={!canSend}
-                                className="h-10 w-10 rounded-xl bg-[var(--color-primary)] text-white inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="h-10 w-10 rounded-xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] text-white inline-flex items-center justify-center shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                                 aria-label="Enviar mensagem"
                             >
-                                {sending ? <Loader2 size={15} className="animate-spin" /> : <SendHorizontal size={15} />}
+                                {sending ? (
+                                    <Loader2 size={15} className="animate-spin" />
+                                ) : (
+                                    <SendHorizontal size={15} />
+                                )}
                             </button>
                         </div>
                     </form>
@@ -414,17 +416,15 @@ export function SalesAssistantWidget() {
             <button
                 type="button"
                 onClick={() => setIsOpen((prev) => !prev)}
-                className="fixed bottom-6 right-4 md:right-6 z-[9999] h-14 w-14 rounded-full bg-[var(--color-primary)] text-white shadow-xl border border-white/20 hover:bg-[var(--color-primary-dark)] transition-all"
+                className={`sales-chat-fab fixed bottom-6 right-4 md:right-6 z-[9999] h-14 w-14 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] text-white shadow-[0_18px_36px_rgba(13,43,82,0.35)] border border-white/20 transition-all ${
+                    isOpen ? "scale-[0.92] rotate-[-8deg]" : "hover:scale-105"
+                }`}
                 aria-label="Abrir assistente de vendas"
             >
                 <span className="relative inline-flex items-center justify-center">
                     <MessageCircle size={22} />
                     <Sparkles size={12} className="absolute -right-3 -top-2 text-cyan-200" />
-                    {!isOpen && (
-                        <span className="absolute -bottom-3 -right-3 text-[10px] font-semibold bg-white text-[var(--color-primary)] border border-[var(--color-border)] rounded-full px-1.5 py-0.5 inline-flex items-center gap-0.5">
-                            Chat <ChevronRight size={10} />
-                        </span>
-                    )}
+                    <span className="sales-chat-fab-dot" />
                 </span>
             </button>
         </>
