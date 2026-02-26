@@ -164,7 +164,7 @@ export default function AdminCategoriesPage() {
                                             className="admin-badge"
                                             style={{
                                                 color: cat.isActive ? "var(--color-accent)" : "var(--color-text-dim)",
-                                                backgroundColor: cat.isActive ? "var(--color-accent)15" : "var(--color-text-dim)15",
+                                                backgroundColor: cat.isActive ? "rgba(14, 165, 233, 0.1)" : "rgba(148, 163, 184, 0.1)",
                                             }}
                                         >
                                             {cat.isActive ? "Ativa" : "Inativa"}
