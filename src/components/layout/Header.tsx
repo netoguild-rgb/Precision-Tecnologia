@@ -63,10 +63,10 @@ export function Header() {
                         {/* Logo — Precision Tecnologia + Huawei Partner */}
                         <Link href="/" className="flex items-center gap-3 sm:gap-4 shrink-0 group min-w-0">
                             <Image
-                                src="/images/precision-logo.png"
+                                src="/images/precision-logo-cropped.png"
                                 alt="Precision Tecnologia"
-                                width={320}
-                                height={80}
+                                width={802}
+                                height={230}
                                 className="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[340px] md:max-w-[420px] logo-precision"
                                 priority
                             />
