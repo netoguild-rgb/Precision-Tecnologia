@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import {
     Search,
     ShoppingCart,
@@ -13,6 +14,8 @@ import {
     ChevronDown,
     Zap,
     Phone,
+    LogOut,
+    Shield,
 } from "lucide-react";
 import { useCartStore, cartTotalItems } from "@/lib/cart-store";
 
@@ -30,11 +33,28 @@ const categories = [
 export function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const userMenuRef = useRef<HTMLDivElement>(null);
+
+    const { data: session } = useSession();
+    const user = session?.user as { name?: string; role?: string } | undefined;
+    const isAdmin = user?.role === "ADMIN";
 
     const totalItems = useCartStore(cartTotalItems);
     const openDrawer = useCartStore((s) => s.openDrawer);
     const router = useRouter();
+
+    // Close user menu on outside click
+    useEffect(() => {
+        function handleClickOutside(e: MouseEvent) {
+            if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+                setIsUserMenuOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     function handleSearch(e?: React.FormEvent) {
         e?.preventDefault();
@@ -115,18 +135,63 @@ export function Header() {
 
                         {/* Actions */}
                         <div className="flex items-center gap-2">
-                            <Link
-                                href="/conta"
-                                className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--color-bg-elevated)] transition-colors text-sm"
-                            >
-                                <User size={18} className="text-[var(--color-text-muted)]" />
-                                <div className="text-left">
-                                    <p className="text-[10px] text-[var(--color-text-muted)]">
-                                        Minha Conta
-                                    </p>
-                                    <p className="text-xs font-medium text-[var(--color-text)]">Entrar</p>
+                            {user ? (
+                                <div className="relative hidden md:block" ref={userMenuRef}>
+                                    <button
+                                        onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                                        className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--color-bg-elevated)] transition-colors text-sm"
+                                    >
+                                        <div className="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white text-xs font-bold">
+                                            {user.name?.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div className="text-left">
+                                            <p className="text-[10px] text-[var(--color-text-muted)]">
+                                                {isAdmin && <span className="text-[var(--color-primary)] font-semibold">Admin • </span>}
+                                                Minha Conta
+                                            </p>
+                                            <p className="text-xs font-medium text-[var(--color-text)] truncate max-w-[100px]">
+                                                {user.name?.split(" ")[0]}
+                                            </p>
+                                        </div>
+                                        <ChevronDown size={12} className="text-[var(--color-text-dim)]" />
+                                    </button>
+
+                                    {isUserMenuOpen && (
+                                        <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-xl shadow-xl border border-[var(--color-border)] py-1.5 z-50">
+                                            {isAdmin && (
+                                                <Link
+                                                    href="/admin"
+                                                    className="flex items-center gap-2.5 px-4 py-2 text-sm text-[var(--color-primary)] hover:bg-[var(--color-bg-elevated)] transition-colors font-medium"
+                                                    onClick={() => setIsUserMenuOpen(false)}
+                                                >
+                                                    <Shield size={15} />
+                                                    Painel Admin
+                                                </Link>
+                                            )}
+                                            <button
+                                                onClick={() => { signOut({ callbackUrl: "/" }); setIsUserMenuOpen(false); }}
+                                                className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-[var(--color-danger)] hover:bg-red-50 transition-colors"
+                                            >
+                                                <LogOut size={15} />
+                                                Sair
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
-                            </Link>
+                            ) : (
+                                <Link
+                                    href="/login"
+                                    className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--color-bg-elevated)] transition-colors text-sm"
+                                >
+                                    <User size={18} className="text-[var(--color-text-muted)]" />
+                                    <div className="text-left">
+                                        <p className="text-[10px] text-[var(--color-text-muted)]">
+                                            Minha Conta
+                                        </p>
+                                        <p className="text-xs font-medium text-[var(--color-text)]">Entrar</p>
+                                    </div>
+                                </Link>
+                            )}
 
                             <button
                                 onClick={openDrawer}

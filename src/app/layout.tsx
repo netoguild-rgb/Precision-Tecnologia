@@ -52,8 +52,8 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${inter.variable} ${ubuntuMono.variable}`}>
       <body className="min-h-screen flex flex-col bg-[var(--color-bg)]">
-        <Header />
         <ClientProviders>
+          <Header />
           <main className="flex-1">{children}</main>
         </ClientProviders>
         <Footer />
