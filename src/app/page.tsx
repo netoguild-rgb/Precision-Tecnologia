@@ -195,8 +195,8 @@ export default function HomePage() {
 
   const setHeroVideoSpeed = () => {
     if (!videoRef.current) return;
-    videoRef.current.defaultPlaybackRate = 0.7;
-    videoRef.current.playbackRate = 0.7;
+    videoRef.current.defaultPlaybackRate = 0.9;
+    videoRef.current.playbackRate = 0.9;
   };
 
   useEffect(() => {
@@ -226,8 +226,8 @@ export default function HomePage() {
 
         {/* Multi-layer Gradient Overlay */}
         <div className="hero-video-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/25 to-black/40" style={{ zIndex: 1 }} />
-        <div className="absolute inset-0 grid-pattern opacity-10" style={{ zIndex: 2 }} />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/22 via-black/10 to-black/20" style={{ zIndex: 1 }} />
+        <div className="absolute inset-0 grid-pattern opacity-[0.04]" style={{ zIndex: 2 }} />
 
         {/* Animated glow orbs */}
         <div className="absolute top-10 left-[15%] w-[600px] h-[600px] bg-[#1B4B8A] rounded-full opacity-[0.06] blur-[180px] animate-pulse-slow" style={{ zIndex: 2 }} />

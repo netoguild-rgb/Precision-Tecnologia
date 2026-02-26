@@ -252,10 +252,10 @@ body {
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg,
-      rgba(0, 0, 0, 0.55) 0%,
-      rgba(0, 0, 0, 0.35) 40%,
-      rgba(0, 0, 0, 0.30) 70%,
-      rgba(0, 0, 0, 0.45) 100%);
+      rgba(0, 0, 0, 0.28) 0%,
+      rgba(0, 0, 0, 0.18) 40%,
+      rgba(0, 0, 0, 0.14) 70%,
+      rgba(0, 0, 0, 0.24) 100%);
   z-index: 1;
 }
 
