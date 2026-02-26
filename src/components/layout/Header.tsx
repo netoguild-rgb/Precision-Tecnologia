@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
     Search,
     ShoppingCart,
@@ -33,6 +34,17 @@ export function Header() {
 
     const totalItems = useCartStore(cartTotalItems);
     const openDrawer = useCartStore((s) => s.openDrawer);
+    const router = useRouter();
+
+    function handleSearch(e?: React.FormEvent) {
+        e?.preventDefault();
+        const q = searchQuery.trim();
+        if (q) {
+            router.push(`/produtos?search=${encodeURIComponent(q)}`);
+            setSearchQuery("");
+            setIsMenuOpen(false);
+        }
+    }
 
     return (
         <header className="sticky top-0 z-50">
@@ -87,7 +99,7 @@ export function Header() {
 
                         {/* Search bar */}
                         <div className="flex-1 max-w-xl hidden md:block">
-                            <div className="relative">
+                            <form onSubmit={handleSearch} className="relative">
                                 <input
                                     type="text"
                                     placeholder="Buscar switches, APs, GBICs, patch cords..."
@@ -95,10 +107,10 @@ export function Header() {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="w-full bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-xl py-2.5 pl-4 pr-12 text-sm text-[var(--color-text)] placeholder-[var(--color-text-dim)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 transition-all"
                                 />
-                                <button className="absolute right-1 top-1 bottom-1 px-3 bg-[var(--color-primary)] rounded-lg text-white hover:bg-[var(--color-primary-dark)] transition-colors">
+                                <button type="submit" className="absolute right-1 top-1 bottom-1 px-3 bg-[var(--color-primary)] rounded-lg text-white hover:bg-[var(--color-primary-dark)] transition-colors">
                                     <Search size={16} />
                                 </button>
-                            </div>
+                            </form>
                         </div>
 
                         {/* Actions */}
@@ -125,8 +137,8 @@ export function Header() {
                                     className="text-[var(--color-text-muted)]"
                                 />
                                 <span className={`absolute -top-0.5 -right-0.5 w-5 h-5 text-white text-[10px] font-bold rounded-full flex items-center justify-center transition-all ${totalItems > 0
-                                        ? "bg-[var(--color-accent)] scale-100"
-                                        : "bg-[var(--color-text-dim)] scale-90"
+                                    ? "bg-[var(--color-accent)] scale-100"
+                                    : "bg-[var(--color-text-dim)] scale-90"
                                     }`}>
                                     {totalItems}
                                 </span>
@@ -209,17 +221,21 @@ export function Header() {
             {isMenuOpen && (
                 <div className="md:hidden bg-white border-b border-[var(--color-border)] shadow-lg">
                     <div className="px-4 py-3">
-                        <div className="relative mb-3">
+                        <form onSubmit={handleSearch} className="relative mb-3">
                             <input
                                 type="text"
                                 placeholder="Buscar produtos..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-xl py-2.5 pl-4 pr-10 text-sm"
                             />
-                            <Search
-                                size={16}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-dim)]"
-                            />
-                        </div>
+                            <button type="submit">
+                                <Search
+                                    size={16}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-dim)]"
+                                />
+                            </button>
+                        </form>
                         <div className="space-y-1">
                             {categories.map((cat) => (
                                 <Link

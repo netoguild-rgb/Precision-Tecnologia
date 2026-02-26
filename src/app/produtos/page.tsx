@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArrowUpDown, Grid3X3, List, SlidersHorizontal, X } from "lucide-react";
+import { ArrowUpDown, Grid3X3, List, SlidersHorizontal, X, Search } from "lucide-react";
 import { FilterSidebar, FilterChips } from "@/components/catalog/FilterSidebar";
 import { ProductCard } from "@/components/product/ProductCard";
 import { mockProducts, getFilterGroups, Product } from "@/lib/mock-products";
@@ -33,6 +33,7 @@ function CatalogPageContent() {
     const initialStock = searchParams.get("stockStatus");
     const isFeatured = searchParams.get("featured") === "true";
     const isNew = searchParams.get("isNew") === "true";
+    const searchQuery = searchParams.get("search") || "";
 
     const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>(() => {
         const initial: Record<string, string[]> = {};
@@ -75,6 +76,20 @@ function CatalogPageContent() {
         // Featured / New from URL
         if (isFeatured) result = result.filter((p) => p.featured);
         if (isNew) result = result.filter((p) => p.isNew);
+
+        // Text search
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            result = result.filter((p) =>
+                p.name.toLowerCase().includes(q) ||
+                p.sku.toLowerCase().includes(q) ||
+                p.partNumber.toLowerCase().includes(q) ||
+                p.category.toLowerCase().includes(q) ||
+                p.categorySlug.toLowerCase().includes(q) ||
+                p.description.toLowerCase().includes(q) ||
+                Object.values(p.specs).some((v) => String(v).toLowerCase().includes(q))
+            );
+        }
 
         // Category filter
         if (activeFilters.category?.length) {
@@ -135,15 +150,17 @@ function CatalogPageContent() {
         });
 
         return result;
-    }, [activeFilters, sortBy, isFeatured, isNew]);
+    }, [activeFilters, sortBy, isFeatured, isNew, searchQuery]);
 
-    const pageTitle = isFeatured
-        ? "Produtos em Destaque"
-        : isNew
-            ? "Novidades"
-            : activeFilters.category?.length === 1
-                ? mockProducts.find((p) => p.categorySlug === activeFilters.category[0])?.category || "Produtos"
-                : "Catálogo";
+    const pageTitle = searchQuery
+        ? `Resultados para "${searchQuery}"`
+        : isFeatured
+            ? "Produtos em Destaque"
+            : isNew
+                ? "Novidades"
+                : activeFilters.category?.length === 1
+                    ? mockProducts.find((p) => p.categorySlug === activeFilters.category[0])?.category || "Produtos"
+                    : "Catálogo";
 
     return (
         <div className="min-h-screen bg-[var(--color-bg)]">
@@ -248,8 +265,8 @@ function CatalogPageContent() {
                                 <button
                                     onClick={() => setViewMode("grid")}
                                     className={`p-1.5 rounded-md transition-colors ${viewMode === "grid"
-                                            ? "bg-[var(--color-primary)] text-white"
-                                            : "text-[var(--color-text-dim)] hover:text-[var(--color-text)]"
+                                        ? "bg-[var(--color-primary)] text-white"
+                                        : "text-[var(--color-text-dim)] hover:text-[var(--color-text)]"
                                         }`}
                                 >
                                     <Grid3X3 size={16} />
@@ -257,8 +274,8 @@ function CatalogPageContent() {
                                 <button
                                     onClick={() => setViewMode("list")}
                                     className={`p-1.5 rounded-md transition-colors ${viewMode === "list"
-                                            ? "bg-[var(--color-primary)] text-white"
-                                            : "text-[var(--color-text-dim)] hover:text-[var(--color-text)]"
+                                        ? "bg-[var(--color-primary)] text-white"
+                                        : "text-[var(--color-text-dim)] hover:text-[var(--color-text)]"
                                         }`}
                                 >
                                     <List size={16} />
@@ -288,7 +305,9 @@ function CatalogPageContent() {
                                     Nenhum produto encontrado
                                 </h3>
                                 <p className="text-sm text-[var(--color-text-muted)] mb-4">
-                                    Tente ajustar seus filtros para ver mais resultados.
+                                    {searchQuery
+                                        ? `Nenhum resultado para "${searchQuery}". Tente outro termo.`
+                                        : "Tente ajustar seus filtros para ver mais resultados."}
                                 </p>
                                 <button
                                     onClick={clearAllFilters}
