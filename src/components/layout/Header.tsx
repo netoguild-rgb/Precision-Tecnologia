@@ -67,16 +67,16 @@ export function Header() {
                                 alt="Precision Tecnologia"
                                 width={320}
                                 height={80}
-                                className="h-14 w-auto max-w-[190px] sm:max-w-[250px] md:max-w-[320px] logo-precision"
+                                className="h-20 sm:h-24 md:h-28 w-auto max-w-[260px] sm:max-w-[340px] md:max-w-[420px] logo-precision"
                                 priority
                             />
-                            <div className="h-8 w-px bg-[var(--color-border)] hidden sm:block" />
+                            <div className="h-14 sm:h-16 w-px bg-[var(--color-border)] hidden sm:block" />
                             <Image
                                 src="/images/huawei-logo.png"
                                 alt="Huawei Enterprise Partner"
                                 width={80}
                                 height={26}
-                                className="h-5 w-auto hidden sm:block opacity-60 group-hover:opacity-100 transition-opacity"
+                                className="h-6 sm:h-7 w-auto hidden sm:block opacity-60 group-hover:opacity-100 transition-opacity"
                                 priority
                             />
                         </Link>
