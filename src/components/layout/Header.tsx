@@ -342,6 +342,14 @@ export function Header() {
                             ))}
                             <div className="border-t border-[var(--color-border)] mt-2 pt-2">
                                 <Link
+                                    href="/rastreamento"
+                                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--color-text)] hover:bg-[var(--color-bg-elevated)] transition-colors"
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    <span>📦</span>
+                                    Rastrear Pedido
+                                </Link>
+                                <Link
                                     href="/cotacao"
                                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-bg-elevated)] transition-colors"
                                     onClick={() => setIsMenuOpen(false)}
