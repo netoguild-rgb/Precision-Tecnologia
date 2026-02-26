@@ -195,8 +195,8 @@ export default function HomePage() {
 
   const setHeroVideoSpeed = () => {
     if (!videoRef.current) return;
-    videoRef.current.defaultPlaybackRate = 0.9;
-    videoRef.current.playbackRate = 0.9;
+    videoRef.current.defaultPlaybackRate = 1;
+    videoRef.current.playbackRate = 1;
   };
 
   useEffect(() => {
@@ -223,15 +223,6 @@ export default function HomePage() {
         >
           <source src="/videos/datacenter-hero.mp4" type="video/mp4" />
         </video>
-
-        {/* Multi-layer Gradient Overlay */}
-        <div className="hero-video-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/22 via-black/10 to-black/20" style={{ zIndex: 1 }} />
-        <div className="absolute inset-0 grid-pattern opacity-[0.04]" style={{ zIndex: 2 }} />
-
-        {/* Animated glow orbs */}
-        <div className="absolute top-10 left-[15%] w-[600px] h-[600px] bg-[#1B4B8A] rounded-full opacity-[0.06] blur-[180px] animate-pulse-slow" style={{ zIndex: 2 }} />
-        <div className="absolute bottom-10 right-[10%] w-[500px] h-[500px] bg-[#0EA5E9] rounded-full opacity-[0.06] blur-[180px] animate-pulse-slow" style={{ animationDelay: "3s", zIndex: 2 }} />
 
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 py-20 lg:py-28 w-full">
