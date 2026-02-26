@@ -24,6 +24,8 @@ type AssistantSuggestion = {
 type AssistantReply = {
     reply: string;
     suggestions?: AssistantSuggestion[];
+    complementarySuggestions?: AssistantSuggestion[];
+    categories?: Array<{ name: string; slug: string }>;
     providerLimited?: boolean;
     error?: string;
 };
@@ -33,6 +35,8 @@ type ChatMessage = {
     role: "assistant" | "user";
     content: string;
     suggestions?: AssistantSuggestion[];
+    complementarySuggestions?: AssistantSuggestion[];
+    categories?: Array<{ name: string; slug: string }>;
     providerLimited?: boolean;
 };
 
@@ -178,6 +182,8 @@ export function SalesAssistantWidget() {
                     role: "assistant",
                     content: data.reply || "Posso te ajudar com uma cotacao personalizada.",
                     suggestions: data.suggestions ?? [],
+                    complementarySuggestions: data.complementarySuggestions ?? [],
+                    categories: data.categories ?? [],
                     providerLimited: data.providerLimited,
                 },
             ]);
@@ -272,6 +278,9 @@ export function SalesAssistantWidget() {
 
                                     {message.suggestions && message.suggestions.length > 0 && (
                                         <div className="mt-3 space-y-2">
+                                            <p className="text-[11px] uppercase tracking-wide text-[var(--color-text-dim)] px-0.5">
+                                                Produtos indicados
+                                            </p>
                                             {message.suggestions.slice(0, 3).map((product) => (
                                                 <Link
                                                     key={`${message.id}_${product.slug}`}
@@ -314,6 +323,54 @@ export function SalesAssistantWidget() {
                                                     </div>
                                                 </Link>
                                             ))}
+                                        </div>
+                                    )}
+
+                                    {message.complementarySuggestions && message.complementarySuggestions.length > 0 && (
+                                        <div className="mt-3 space-y-2">
+                                            <p className="text-[11px] uppercase tracking-wide text-[var(--color-text-dim)] px-0.5">
+                                                Complementares
+                                            </p>
+                                            {message.complementarySuggestions.slice(0, 2).map((product) => (
+                                                <Link
+                                                    key={`${message.id}_comp_${product.slug}`}
+                                                    href={`/produtos/${product.slug}`}
+                                                    onClick={() => setIsOpen(false)}
+                                                    className="block rounded-xl border border-[var(--color-border)] p-2 hover:border-[var(--color-primary)] hover:bg-[var(--color-bg-elevated)] transition-colors"
+                                                >
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <p className="text-xs font-semibold text-[var(--color-text)] line-clamp-1">
+                                                            {product.name}
+                                                        </p>
+                                                        <span className="text-[11px] font-semibold text-[var(--color-primary)]">
+                                                            {formatCurrency(product.price)}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                                                        SKU {product.sku} • {stockLabel(product.stockStatus)}
+                                                    </p>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {message.categories && message.categories.length > 0 && (
+                                        <div className="mt-3">
+                                            <p className="text-[11px] uppercase tracking-wide text-[var(--color-text-dim)] mb-1 px-0.5">
+                                                Categorias relacionadas
+                                            </p>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {message.categories.slice(0, 4).map((category) => (
+                                                    <Link
+                                                        key={`${message.id}_cat_${category.slug}`}
+                                                        href={`/produtos?category=${category.slug}`}
+                                                        onClick={() => setIsOpen(false)}
+                                                        className="text-[11px] rounded-full border border-[var(--color-border)] px-2 py-1 text-[var(--color-text-muted)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors"
+                                                    >
+                                                        {category.name}
+                                                    </Link>
+                                                ))}
+                                            </div>
                                         </div>
                                     )}
                                 </div>

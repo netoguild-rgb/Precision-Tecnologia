@@ -5,14 +5,15 @@ import { getAuthenticatedUser } from "@/lib/auth-user";
 import { applyRateLimit } from "@/lib/ai/rate-limit";
 import {
     buildCatalogContextText,
-    findCatalogSuggestions,
-    type AssistantProductSuggestion,
+    findCatalogKnowledge,
+    type CatalogKnowledge,
 } from "@/lib/ai/catalog-context";
 import {
     SALES_ASSISTANT_SYSTEM_PROMPT,
     buildSalesSystemContext,
     type SalesCartItem,
 } from "@/lib/ai/sales-prompt";
+import { buildStorePolicyContextText } from "@/lib/ai/store-context";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -96,17 +97,34 @@ function mapRoleToGroq(role: AiMessageRole): "user" | "assistant" | "system" {
     return "user";
 }
 
-function buildFallbackReply(message: string, suggestions: AssistantProductSuggestion[]): string {
-    if (suggestions.length > 0) {
-        const top = suggestions.slice(0, 3).map((item) => item.name).join(", ");
-        return `Encontrei opcoes no catalogo: ${top}. Posso te ajudar a comparar e fechar a melhor opcao para o seu projeto.`;
+function buildFallbackReply(message: string, knowledge: CatalogKnowledge): string {
+    if (knowledge.primaryProducts.length > 0) {
+        const top = knowledge.primaryProducts.slice(0, 3).map((item) => item.name).join(", ");
+        const complementary = knowledge.complementaryProducts
+            .slice(0, 2)
+            .map((item) => item.name)
+            .join(", ");
+
+        if (complementary) {
+            return `Encontrei no catalogo: ${top}. Complementares reais: ${complementary}.`;
+        }
+
+        return `Encontrei no catalogo: ${top}.`;
     }
 
-    if (/cotac|orcament|proposta/i.test(message)) {
-        return "Consigo te ajudar com cotacao B2B. Me diga quantidade, prazo e cidade de entrega para montar a proposta.";
+    if (knowledge.categories.length > 0) {
+        const categories = knowledge.categories
+            .slice(0, 4)
+            .map((item) => item.name)
+            .join(", ");
+        return `Nao encontrei produto especifico, mas estas categorias estao relacionadas: ${categories}.`;
     }
 
-    return "Posso ajudar com indicacao de produtos, compatibilidade e cotacao B2B. Me diga o que voce precisa no projeto.";
+    if (/cotac|orcament|proposta|pagamento|frete|entrega|garantia|rastreio/i.test(message)) {
+        return "Nao encontrei essa informacao no sistema.";
+    }
+
+    return "Nao encontrei essa informacao no sistema.";
 }
 
 async function requestGroqReply(params: {
@@ -189,7 +207,10 @@ export async function POST(request: NextRequest) {
         }
 
         const user = await getAuthenticatedUser(request);
-        const suggestions = await findCatalogSuggestions(message, 5);
+        const [knowledge, storePolicyText] = await Promise.all([
+            findCatalogKnowledge(message),
+            buildStorePolicyContextText(),
+        ]);
 
         const conversation = await prisma.aiConversation.upsert({
             where: { sessionId },
@@ -234,21 +255,24 @@ export async function POST(request: NextRequest) {
         const systemContext = buildSalesSystemContext({
             page,
             cart,
-            products: suggestions,
+            categories: knowledge.categories,
+            primaryProducts: knowledge.primaryProducts,
+            complementaryProducts: knowledge.complementaryProducts,
+            storePolicyText,
         });
 
-        const catalogText = buildCatalogContextText(suggestions);
+        const catalogText = buildCatalogContextText(knowledge);
 
         const apiKey = process.env.GROQ_API_KEY;
         const model = process.env.GROQ_MODEL || "llama-3.1-8b-instant";
         const maxTokensRaw = Number(process.env.GROQ_MAX_TOKENS ?? "500");
-        const temperatureRaw = Number(process.env.GROQ_TEMPERATURE ?? "0.2");
+        const temperatureRaw = Number(process.env.GROQ_TEMPERATURE ?? "0.1");
         const maxTokens = Number.isFinite(maxTokensRaw)
             ? Math.min(Math.max(Math.floor(maxTokensRaw), 120), 1200)
             : 500;
         const temperature = Number.isFinite(temperatureRaw)
-            ? Math.min(Math.max(temperatureRaw, 0), 1)
-            : 0.2;
+            ? Math.min(Math.max(temperatureRaw, 0), 0.5)
+            : 0.1;
 
         let reply = "";
         let tokensIn: number | null = null;
@@ -274,14 +298,14 @@ export async function POST(request: NextRequest) {
                 providerLimited = true;
                 reply = "Estou com alto volume de atendimento agora. Tente novamente em 1 minuto ou solicite cotacao B2B para retorno comercial.";
             } else {
-                reply = buildFallbackReply(message, suggestions);
+                reply = buildFallbackReply(message, knowledge);
             }
         } else {
-            reply = buildFallbackReply(message, suggestions);
+            reply = buildFallbackReply(message, knowledge);
         }
 
         if (!reply) {
-            reply = buildFallbackReply(message, suggestions);
+            reply = buildFallbackReply(message, knowledge);
         }
 
         await prisma.aiMessage.create({
@@ -297,13 +321,25 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
             {
                 reply,
-                suggestions: suggestions.map((item) => ({
+                suggestions: knowledge.primaryProducts.map((item) => ({
                     slug: item.slug,
                     name: item.name,
                     sku: item.sku,
                     price: item.price,
                     stockStatus: item.stockStatus,
                     image: item.image,
+                })),
+                complementarySuggestions: knowledge.complementaryProducts.map((item) => ({
+                    slug: item.slug,
+                    name: item.name,
+                    sku: item.sku,
+                    price: item.price,
+                    stockStatus: item.stockStatus,
+                    image: item.image,
+                })),
+                categories: knowledge.categories.map((category) => ({
+                    name: category.name,
+                    slug: category.slug,
                 })),
                 leadCaptured: false,
                 providerLimited,
