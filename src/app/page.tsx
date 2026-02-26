@@ -524,7 +524,14 @@ export default function HomePage() {
             height={40}
             className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0"
           />
-          {["Commscope", "Ubiquiti", "Mikrotik"].map((brand) => (
+          <Image
+            src="/images/commscope-logo.svg"
+            alt="Commscope"
+            width={180}
+            height={40}
+            className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0"
+          />
+          {["Ubiquiti", "Mikrotik"].map((brand) => (
             <span
               key={brand}
               className="text-lg md:text-xl font-bold tracking-wider text-[var(--color-text-dim)] opacity-40 hover:opacity-80 hover:text-[var(--color-text)] transition-all duration-300"
