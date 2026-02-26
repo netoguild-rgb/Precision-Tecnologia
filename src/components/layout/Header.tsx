@@ -61,22 +61,22 @@ export function Header() {
                 <div className="max-w-7xl mx-auto px-4 py-3">
                     <div className="flex items-center justify-between gap-4">
                         {/* Logo — Precision Tecnologia + Huawei Partner */}
-                        <Link href="/" className="flex items-center gap-4 shrink-0 group">
+                        <Link href="/" className="flex items-center gap-3 sm:gap-4 shrink-0 group min-w-0">
                             <Image
                                 src="/images/precision-logo.png"
                                 alt="Precision Tecnologia"
-                                width={260}
-                                height={65}
-                                className="h-14 w-auto logo-precision"
+                                width={320}
+                                height={80}
+                                className="h-[92px] sm:h-[116px] md:h-[128px] w-auto max-w-[190px] sm:max-w-[250px] md:max-w-[320px] logo-precision"
                                 priority
                             />
-                            <div className="h-8 w-px bg-[var(--color-border)] hidden sm:block" />
+                            <div className="h-14 w-px bg-[var(--color-border)] hidden sm:block" />
                             <Image
                                 src="/images/huawei-logo.png"
                                 alt="Huawei Enterprise Partner"
                                 width={80}
                                 height={26}
-                                className="h-5 w-auto hidden sm:block opacity-60 group-hover:opacity-100 transition-opacity"
+                                className="h-6 w-auto hidden sm:block opacity-60 group-hover:opacity-100 transition-opacity"
                                 priority
                             />
                         </Link>
