@@ -201,9 +201,9 @@ function CatalogPageContent() {
         ? `Resultados para "${searchQuery}"`
         : isFeatured
             ? "Produtos em Destaque"
-                : isNew
-                    ? "Novidades"
-                    : activeFilters.category?.length === 1
+            : isNew
+                ? "Novidades"
+                : activeFilters.category?.length === 1
                     ? products.find((p) => p.categorySlug === activeFilters.category[0])?.category || "Produtos"
                     : "Catálogo";
 
@@ -330,8 +330,21 @@ function CatalogPageContent() {
 
                         {/* Product Grid */}
                         {loadingProducts ? (
-                            <div className="text-center py-20">
-                                <p className="text-sm text-[var(--color-text-muted)]">Carregando catálogo real...</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                                {[...Array(6)].map((_, i) => (
+                                    <div key={i} className="skeleton-card">
+                                        <div className="skeleton-image skeleton" />
+                                        <div className="p-5">
+                                            <div className="skeleton skeleton-line-sm mb-3" style={{ width: '40%' }} />
+                                            <div className="skeleton skeleton-line" style={{ width: '80%' }} />
+                                            <div className="skeleton skeleton-line" style={{ width: '60%' }} />
+                                            <div className="mt-4 flex items-end justify-between">
+                                                <div className="skeleton skeleton-price" />
+                                                <div className="skeleton" style={{ width: '5rem', height: '2.25rem', borderRadius: '0.75rem' }} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         ) : filteredProducts.length > 0 ? (
                             <div

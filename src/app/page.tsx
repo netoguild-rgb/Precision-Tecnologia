@@ -19,7 +19,12 @@ import {
   Star,
   Play,
   Package,
+  Award,
+  CheckCircle2,
+  Warehouse,
 } from "lucide-react";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useAnimatedCounter } from "@/hooks/useAnimatedCounter";
 
 const categories = [
   {
@@ -111,9 +116,82 @@ const features = [
   },
 ];
 
+const testimonials = [
+  {
+    name: "Ricardo Mendes",
+    role: "CTO",
+    company: "NetLink Solutions",
+    text: "A Precision é nosso fornecedor principal de switches Huawei. Pronta entrega real, não é marketing — recebemos em 24h em SP. Suporte técnico excelente.",
+    rating: 5,
+  },
+  {
+    name: "Ana Oliveira",
+    role: "Gerente de Compras",
+    company: "ISP Fibra Connect",
+    text: "Compramos GBICs e patch cords em volume. Os preços B2B são os melhores que encontramos, e o boleto faturado facilita muito o fluxo de caixa.",
+    rating: 5,
+  },
+  {
+    name: "Carlos Eduardo",
+    role: "Engenheiro de Redes",
+    company: "DataCenter Plus",
+    text: "Excelente catálogo técnico. As especificações são detalhadas e os datasheets estão sempre disponíveis. Isso economiza muito tempo no dia a dia.",
+    rating: 5,
+  },
+];
+
+const whyChooseUs = [
+  {
+    icon: Award,
+    title: "Parceiro Oficial Huawei",
+    desc: "Gold Partner com acesso direto ao suporte e estoque do fabricante. Garantia e procedência asseguradas.",
+    color: "var(--color-primary)",
+    bg: "rgba(27, 75, 138, 0.08)",
+  },
+  {
+    icon: Warehouse,
+    title: "Estoque Próprio no Brasil",
+    desc: "Mais de 500 produtos em estoque em São Paulo. Envio em até 24 horas para todo o Brasil.",
+    color: "var(--color-success)",
+    bg: "rgba(5, 150, 105, 0.08)",
+  },
+  {
+    icon: Headphones,
+    title: "Suporte Pós-Venda",
+    desc: "Equipe técnica especializada em infraestrutura de rede. Assistência na configuração e integração.",
+    color: "var(--color-accent)",
+    bg: "rgba(14, 165, 233, 0.08)",
+  },
+];
+
+const brandLogos = [
+  { src: "/images/huawei-logo.png", alt: "Huawei", w: 120, h: 40 },
+  { src: "/images/furukawa-logo-slogan.svg", alt: "Furukawa Electric", w: 180, h: 40 },
+  { src: "/images/commscope-logo.svg", alt: "Commscope", w: 180, h: 40 },
+  { src: "/images/cisco-logo.png", alt: "Cisco", w: 180, h: 40 },
+  { src: "/images/mikrotik-logo.png", alt: "MikroTik", w: 180, h: 40 },
+];
+
+/* ── Animated counter subcomponent ── */
+function AnimatedStat({ end, suffix, label }: { end: number; suffix: string; label: string }) {
+  const { ref, value } = useAnimatedCounter(end, 2000, suffix);
+  return (
+    <div>
+      <p
+        ref={ref as React.Ref<HTMLParagraphElement>}
+        className="text-3xl font-extrabold bg-gradient-to-r from-[#5B9EC9] to-[#A3D4F7] bg-clip-text text-transparent"
+      >
+        {value}
+      </p>
+      <p className="text-sm text-white/50 mt-1">{label}</p>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const scrollRef = useScrollReveal();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -123,9 +201,9 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)]">
+    <div ref={scrollRef} className="min-h-screen bg-[var(--color-bg)]">
       {/* ═══════════════════════════════════════════════════
-          HERO SECTION — Video Background (keeps dark overlay)
+          HERO SECTION — Video Background
          ═══════════════════════════════════════════════════ */}
       <section className="relative overflow-hidden min-h-[85vh] flex items-center">
         {/* Video Background */}
@@ -141,7 +219,7 @@ export default function HomePage() {
           <source src="/videos/datacenter-hero.mp4" type="video/mp4" />
         </video>
 
-        {/* Multi-layer Gradient Overlay for depth */}
+        {/* Multi-layer Gradient Overlay */}
         <div className="hero-video-overlay" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/25 to-black/40" style={{ zIndex: 1 }} />
         <div className="absolute inset-0 grid-pattern opacity-10" style={{ zIndex: 2 }} />
@@ -194,25 +272,12 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Stats */}
+              {/* Animated Stats */}
               <div className="flex flex-wrap gap-8 mt-14 pt-8 border-t border-white/10">
-                {[
-                  { value: "500+", label: "Produtos" },
-                  { value: "24h", label: "Envio rápido" },
-                  { value: "12x", label: "Sem juros" },
-                  { value: "100%", label: "Garantia" },
-                ].map((stat, i) => (
-                  <div
-                    key={stat.label}
-                    className={`transition-all duration-700 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-                    style={{ transitionDelay: `${600 + i * 150}ms` }}
-                  >
-                    <p className="text-3xl font-extrabold bg-gradient-to-r from-[#5B9EC9] to-[#A3D4F7] bg-clip-text text-transparent">
-                      {stat.value}
-                    </p>
-                    <p className="text-sm text-white/50 mt-1">{stat.label}</p>
-                  </div>
-                ))}
+                <AnimatedStat end={500} suffix="+" label="Produtos" />
+                <AnimatedStat end={24} suffix="h" label="Envio rápido" />
+                <AnimatedStat end={12} suffix="x" label="Sem juros" />
+                <AnimatedStat end={100} suffix="%" label="Garantia" />
               </div>
             </div>
 
@@ -223,7 +288,6 @@ export default function HomePage() {
                 <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-[#1B4B8A]/15 to-[#5B9EC9]/15 blur-3xl" />
 
                 <div className="relative glass-hero rounded-2xl p-8 md:p-10 border border-white/10 overflow-hidden">
-                  {/* Subtle top line glow */}
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
 
                   <Image
@@ -253,7 +317,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Multi-layer transition from dark hero to white page */}
+        {/* Transition to white */}
         <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-white via-white/80 to-transparent z-10" />
       </section>
 
@@ -285,10 +349,10 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════
-          CATEGORIES GRID
+          CATEGORIES GRID — with scroll reveal
          ═══════════════════════════════════════════════════ */}
       <section className="max-w-7xl mx-auto px-4 py-20">
-        <div className="flex justify-between items-end mb-10">
+        <div className="flex justify-between items-end mb-10 scroll-reveal">
           <div>
             <p className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-widest mb-2">
               Explore
@@ -308,11 +372,11 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {categories.map((cat) => (
+          {categories.map((cat, i) => (
             <Link
               key={cat.slug}
               href={`/produtos?category=${cat.slug}`}
-              className="category-card group relative bg-[var(--color-bg-card)] rounded-2xl p-6 border border-[var(--color-border)] overflow-hidden"
+              className={`scroll-reveal scroll-reveal-delay-${(i % 4) + 1} category-card group relative bg-[var(--color-bg-card)] rounded-2xl p-6 border border-[var(--color-border)] overflow-hidden`}
             >
               <div
                 className={`absolute inset-0 bg-gradient-to-br ${cat.gradient} opacity-0 group-hover:opacity-[0.04] transition-opacity duration-500`}
@@ -346,7 +410,7 @@ export default function HomePage() {
          ═══════════════════════════════════════════════════ */}
       <section className="bg-[var(--color-bg-elevated)] py-20">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between items-end mb-10">
+          <div className="flex justify-between items-end mb-10 scroll-reveal">
             <div>
               <p className="text-xs font-semibold text-[var(--color-accent)] uppercase tracking-widest mb-2">
                 Destaques
@@ -403,10 +467,10 @@ export default function HomePage() {
                 stock: "Sob Encomenda",
                 stockType: "order" as const,
               },
-            ].map((product) => (
+            ].map((product, i) => (
               <div
                 key={product.name}
-                className="product-card rounded-2xl overflow-hidden group"
+                className={`scroll-reveal scroll-reveal-delay-${i + 1} product-card rounded-2xl overflow-hidden group`}
               >
                 {/* Image */}
                 <div className="aspect-square bg-[var(--color-bg-elevated)] flex items-center justify-center p-8 relative overflow-hidden border-b border-[var(--color-border)]">
@@ -472,9 +536,93 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════
+          WHY CHOOSE US — Trust Section
+         ═══════════════════════════════════════════════════ */}
+      <section className="max-w-7xl mx-auto px-4 py-20">
+        <div className="text-center mb-12 scroll-reveal">
+          <p className="text-xs font-semibold text-[var(--color-primary)] uppercase tracking-widest mb-2">
+            Diferenciais
+          </p>
+          <h3 className="text-3xl font-bold mb-3 text-[var(--color-text)]">
+            Por Que Escolher a{" "}
+            <span className="gradient-text">Precision</span>
+          </h3>
+          <p className="text-[var(--color-text-muted)] max-w-2xl mx-auto">
+            Mais do que um e-commerce, somos especialistas em infraestrutura de rede com estoque próprio no Brasil
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {whyChooseUs.map((item, i) => (
+            <div
+              key={item.title}
+              className={`scroll-reveal scroll-reveal-delay-${i + 1} p-8 rounded-2xl border border-[var(--color-border)] bg-white hover:shadow-xl hover:-translate-y-2 transition-all duration-300`}
+            >
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 shadow-sm"
+                style={{ background: item.bg }}
+              >
+                <item.icon size={24} style={{ color: item.color }} />
+              </div>
+              <h4 className="text-lg font-bold text-[var(--color-text)] mb-2">{item.title}</h4>
+              <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════
+          TESTIMONIALS — Social Proof
+         ═══════════════════════════════════════════════════ */}
+      <section className="bg-[var(--color-bg-elevated)] py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12 scroll-reveal">
+            <p className="text-xs font-semibold text-[var(--color-accent)] uppercase tracking-widest mb-2">
+              Depoimentos
+            </p>
+            <h3 className="text-3xl font-bold mb-3 text-[var(--color-text)]">
+              O Que Nossos Clientes Dizem
+            </h3>
+            <p className="text-[var(--color-text-muted)]">
+              Empresas que confiam na Precision para sua infraestrutura
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((t, i) => (
+              <div
+                key={t.name}
+                className={`scroll-reveal scroll-reveal-delay-${i + 1} testimonial-card`}
+              >
+                <div className="flex -space-x-0.5 mb-3">
+                  {[...Array(t.rating)].map((_, j) => (
+                    <Star key={j} size={14} className="text-amber-400 fill-amber-400" />
+                  ))}
+                </div>
+                <p className="text-sm text-[var(--color-text-muted)] leading-relaxed mb-4 italic">
+                  &ldquo;{t.text}&rdquo;
+                </p>
+                <div className="flex items-center gap-3 pt-4 border-t border-[var(--color-border)]">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] flex items-center justify-center text-white text-sm font-bold">
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--color-text)]">{t.name}</p>
+                    <p className="text-xs text-[var(--color-text-dim)]">
+                      {t.role} — {t.company}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════
           B2B CTA
          ═══════════════════════════════════════════════════ */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
+      <section className="max-w-7xl mx-auto px-4 py-16 scroll-reveal">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[var(--color-primary-dark)] to-[var(--color-primary)] p-10 md:p-14">
           <div className="absolute inset-0 grid-pattern opacity-10" />
           <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
@@ -503,48 +651,58 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════
-          BRANDS / TRUST
+          BRANDS — Infinite Marquee
          ═══════════════════════════════════════════════════ */}
-      <section className="max-w-7xl mx-auto px-4 py-14 border-t border-[var(--color-border)]">
+      <section className="max-w-7xl mx-auto px-4 py-14 border-t border-[var(--color-border)] scroll-reveal">
         <p className="text-center text-xs text-[var(--color-text-dim)] uppercase tracking-widest mb-10">
           Trabalhamos com as melhores marcas
         </p>
-        <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16">
-          <Image
-            src="/images/huawei-logo.png"
-            alt="Huawei"
-            width={120}
-            height={40}
-            className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0"
-          />
-          <Image
-            src="/images/furukawa-logo-slogan.svg"
-            alt="Furukawa Electric"
-            width={180}
-            height={40}
-            className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0"
-          />
-          <Image
-            src="/images/commscope-logo.svg"
-            alt="Commscope"
-            width={180}
-            height={40}
-            className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0"
-          />
-          <Image
-            src="/images/cisco-logo.png"
-            alt="Cisco"
-            width={180}
-            height={40}
-            className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0"
-          />
-          <Image
-            src="/images/mikrotik-logo.png"
-            alt="MikroTik"
-            width={180}
-            height={40}
-            className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0"
-          />
+        <div className="marquee-container">
+          <div className="marquee-track">
+            {/* Double the logos for seamless loop */}
+            {[...brandLogos, ...brandLogos].map((logo, i) => (
+              <Image
+                key={`${logo.alt}-${i}`}
+                src={logo.src}
+                alt={logo.alt}
+                width={logo.w}
+                height={logo.h}
+                className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0 shrink-0"
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════
+          TRUST BADGES BAR
+         ═══════════════════════════════════════════════════ */}
+      <section className="max-w-7xl mx-auto px-4 pb-16 scroll-reveal">
+        <div className="flex flex-wrap justify-center gap-4">
+          <div className="trust-badge">
+            <div className="trust-badge-icon bg-green-50">
+              <CheckCircle2 size={14} className="text-green-600" />
+            </div>
+            Pagamento Seguro SSL
+          </div>
+          <div className="trust-badge">
+            <div className="trust-badge-icon bg-blue-50">
+              <Shield size={14} className="text-blue-600" />
+            </div>
+            Garantia Oficial Huawei
+          </div>
+          <div className="trust-badge">
+            <div className="trust-badge-icon bg-amber-50">
+              <Award size={14} className="text-amber-600" />
+            </div>
+            Parceiro Autorizado
+          </div>
+          <div className="trust-badge">
+            <div className="trust-badge-icon bg-purple-50">
+              <Truck size={14} className="text-purple-600" />
+            </div>
+            Envio para Todo Brasil
+          </div>
         </div>
       </section>
     </div>

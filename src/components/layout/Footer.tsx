@@ -7,11 +7,45 @@ import {
     Instagram,
     Linkedin,
     Youtube,
+    Shield,
+    Award,
+    CheckCircle2,
+    Truck,
+    Send,
 } from "lucide-react";
 
 export function Footer() {
     return (
         <footer className="bg-[var(--color-bg-elevated)] border-t border-[var(--color-border)]">
+            {/* Newsletter */}
+            <div className="max-w-7xl mx-auto px-4 pt-12">
+                <div className="newsletter-section relative overflow-hidden">
+                    <div className="absolute inset-0 grid-pattern opacity-5" />
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
+                    <div className="relative flex flex-col md:flex-row items-center gap-6">
+                        <div className="flex-1 text-center md:text-left">
+                            <h3 className="text-lg font-bold mb-1">
+                                Receba novidades e ofertas exclusivas
+                            </h3>
+                            <p className="text-sm text-white/60">
+                                Fique por dentro dos lançamentos e promoções de infraestrutura de rede
+                            </p>
+                        </div>
+                        <form className="flex gap-2 w-full md:w-auto" onSubmit={(e) => e.preventDefault()}>
+                            <input
+                                type="email"
+                                placeholder="Seu melhor e-mail"
+                                className="newsletter-input min-w-0 md:w-64"
+                            />
+                            <button type="submit" className="newsletter-btn flex items-center gap-2">
+                                <Send size={14} />
+                                Inscrever
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <div className="max-w-7xl mx-auto px-4 py-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {/* Brand */}
@@ -48,24 +82,20 @@ export function Footer() {
                             os melhores preços.
                         </p>
                         <div className="flex gap-3">
-                            <a
-                                href="#"
-                                className="w-9 h-9 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all"
-                            >
-                                <Instagram size={16} />
-                            </a>
-                            <a
-                                href="#"
-                                className="w-9 h-9 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all"
-                            >
-                                <Linkedin size={16} />
-                            </a>
-                            <a
-                                href="#"
-                                className="w-9 h-9 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all"
-                            >
-                                <Youtube size={16} />
-                            </a>
+                            {[
+                                { icon: Instagram, href: "#", label: "Instagram" },
+                                { icon: Linkedin, href: "#", label: "LinkedIn" },
+                                { icon: Youtube, href: "#", label: "YouTube" },
+                            ].map((social) => (
+                                <a
+                                    key={social.label}
+                                    href={social.href}
+                                    aria-label={social.label}
+                                    className="w-9 h-9 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-muted)] hover:text-white hover:bg-[var(--color-primary)] hover:border-[var(--color-primary)] transition-all duration-300"
+                                >
+                                    <social.icon size={16} />
+                                </a>
+                            ))}
                         </div>
                     </div>
 
@@ -190,8 +220,38 @@ export function Footer() {
                     </div>
                 </div>
 
+                {/* Trust Badges Row */}
+                <div className="mt-10 pt-8 border-t border-[var(--color-border)]">
+                    <div className="flex flex-wrap justify-center gap-3 mb-8">
+                        <div className="trust-badge">
+                            <div className="trust-badge-icon bg-green-50">
+                                <CheckCircle2 size={12} className="text-green-600" />
+                            </div>
+                            Pagamento 100% Seguro
+                        </div>
+                        <div className="trust-badge">
+                            <div className="trust-badge-icon bg-blue-50">
+                                <Shield size={12} className="text-blue-600" />
+                            </div>
+                            Garantia Oficial
+                        </div>
+                        <div className="trust-badge">
+                            <div className="trust-badge-icon bg-amber-50">
+                                <Award size={12} className="text-amber-600" />
+                            </div>
+                            Parceiro Gold Huawei
+                        </div>
+                        <div className="trust-badge">
+                            <div className="trust-badge-icon bg-purple-50">
+                                <Truck size={12} className="text-purple-600" />
+                            </div>
+                            Envio Nacional
+                        </div>
+                    </div>
+                </div>
+
                 {/* Bottom bar */}
-                <div className="mt-10 pt-6 border-t border-[var(--color-border)] flex flex-col md:flex-row justify-between items-center gap-3">
+                <div className="pt-6 border-t border-[var(--color-border)] flex flex-col md:flex-row justify-between items-center gap-3">
                     <p className="text-xs text-[var(--color-text-dim)]">
                         © 2026 Precision Tecnologia. Todos os direitos reservados. CNPJ:
                         XX.XXX.XXX/0001-XX

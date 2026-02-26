@@ -16,6 +16,8 @@ import {
     Phone,
     LogOut,
     Shield,
+    Truck,
+    Briefcase,
 } from "lucide-react";
 import { useCartStore, cartTotalItems } from "@/lib/cart-store";
 
@@ -30,11 +32,18 @@ const categories = [
     { name: "Firewalls", slug: "firewalls", icon: "🛡️" },
 ];
 
+const promoMessages = [
+    { icon: Zap, text: "Frete grátis para compras acima de R$ 5.000" },
+    { icon: Truck, text: "Pronta entrega para todo o Brasil — envio em 24h" },
+    { icon: Briefcase, text: "Condições especiais B2B — Solicite sua cotação" },
+];
+
 export function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [promoIndex, setPromoIndex] = useState(0);
     const userMenuRef = useRef<HTMLDivElement>(null);
 
     const { data: session } = useSession();
@@ -44,6 +53,14 @@ export function Header() {
     const totalItems = useCartStore(cartTotalItems);
     const openDrawer = useCartStore((s) => s.openDrawer);
     const router = useRouter();
+
+    // Rotating promo banner
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setPromoIndex((prev) => (prev + 1) % promoMessages.length);
+        }, 4000);
+        return () => clearInterval(interval);
+    }, []);
 
     // Close user menu on outside click
     useEffect(() => {
@@ -68,13 +85,23 @@ export function Header() {
 
     return (
         <header className="sticky top-0 z-50">
-            {/* Top bar — Blue Royal */}
+            {/* Top bar — Rotating Promo Banner */}
             <div className="bg-[var(--color-primary-dark)] text-white text-xs py-1.5">
                 <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
-                    <span className="flex items-center gap-1.5">
-                        <Zap size={12} />
-                        Frete grátis para compras acima de R$ 5.000
-                    </span>
+                    <div className="promo-banner flex-1">
+                        {promoMessages.map((promo, i) => {
+                            const IconComp = promo.icon;
+                            let state = "enter-down";
+                            if (i === promoIndex) state = "active";
+                            else if (i === (promoIndex - 1 + promoMessages.length) % promoMessages.length) state = "exit-up";
+                            return (
+                                <span key={i} className={`promo-banner-item ${state}`}>
+                                    <IconComp size={12} />
+                                    {promo.text}
+                                </span>
+                            );
+                        })}
+                    </div>
                     <div className="hidden md:flex items-center gap-4">
                         <Link href="/rastreamento" className="hover:underline">
                             Rastrear Pedido

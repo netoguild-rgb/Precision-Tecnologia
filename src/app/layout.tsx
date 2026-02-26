@@ -4,6 +4,8 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ClientProviders } from "@/components/layout/ClientProviders";
+import { WhatsAppFab } from "@/components/layout/WhatsAppFab";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,6 +57,8 @@ export default function RootLayout({
         <ClientProviders>
           <Header />
           <main className="flex-1">{children}</main>
+          <WhatsAppFab />
+          <ScrollToTop />
         </ClientProviders>
         <Footer />
       </body>
