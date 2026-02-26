@@ -225,6 +225,16 @@ export function Header() {
                                     {cat.name}
                                 </Link>
                             ))}
+                            <div className="border-t border-[var(--color-border)] mt-2 pt-2">
+                                <Link
+                                    href="/cotacao"
+                                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--color-primary)] hover:bg-[var(--color-bg-elevated)] transition-colors"
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    <span>💼</span>
+                                    Cotação B2B
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>

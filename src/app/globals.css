@@ -454,6 +454,67 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   B2B QUOTATION
+   ═══════════════════════════════════════════════════════════ */
+.quote-input {
+  width: 100%;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  transition: all 0.2s ease;
+}
+
+.quote-input::placeholder {
+  color: var(--color-text-dim);
+}
+
+.quote-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(27, 75, 138, 0.1);
+}
+
+.quote-input-error {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+}
+
+.quote-form-section {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.quote-item-card {
+  transition: all 0.2s ease;
+}
+
+.quote-item-card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.quote-success-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
    SCROLLBAR
    ═══════════════════════════════════════════════════════════ */
 ::-webkit-scrollbar {
