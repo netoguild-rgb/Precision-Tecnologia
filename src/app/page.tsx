@@ -532,8 +532,8 @@ export default function HomePage() {
             className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0"
           />
           <Image
-            src="/images/ubiquiti-logo.webp"
-            alt="Ubiquiti"
+            src="/images/cisco-logo.png"
+            alt="Cisco"
             width={180}
             height={40}
             className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0"
