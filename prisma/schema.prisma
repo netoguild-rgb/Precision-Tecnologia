@@ -1,0 +1,470 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// AUTENTICAÇÃO & USUÁRIOS
+// ==========================================
+
+enum UserRole {
+  ADMIN
+  CUSTOMER
+  INTEGRATOR // Integrador de TI
+  ISP        // Provedor de Internet
+}
+
+enum CustomerTier {
+  STANDARD
+  SILVER
+  GOLD
+  DIAMOND
+}
+
+model User {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  passwordHash  String
+  name          String
+  phone         String?
+  role          UserRole     @default(CUSTOMER)
+  tier          CustomerTier @default(STANDARD)
+  companyName   String?
+  cnpj          String?      @unique
+  cpf           String?
+  stateRegistration String?  // Inscrição Estadual
+  isActive      Boolean      @default(true)
+  emailVerified DateTime?
+
+  // Endereços
+  addresses     Address[]
+
+  // Pedidos
+  orders        Order[]
+
+  // Carrinho
+  cart          Cart?
+
+  // Cotações B2B
+  quotes        Quote[]
+
+  // Wishlist
+  wishlistItems WishlistItem[]
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("users")
+}
+
+model Address {
+  id           String  @id @default(cuid())
+  userId       String
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  label        String? // "Matriz", "Filial SP", etc.
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String
+  zipCode      String
+  country      String  @default("BR")
+  isDefault    Boolean @default(false)
+
+  orders       Order[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("addresses")
+}
+
+// ==========================================
+// CATÁLOGO DE PRODUTOS
+// ==========================================
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  DISCONTINUED
+}
+
+enum StockStatus {
+  IN_STOCK        // Pronta entrega
+  LOW_STOCK       // Poucas unidades
+  ON_ORDER        // Sob encomenda
+  OUT_OF_STOCK    // Indisponível
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  image       String?
+  icon        String?    // Lucide icon name
+  parentId    String?
+  parent      Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryChildren")
+  sortOrder   Int        @default(0)
+  isActive    Boolean    @default(true)
+
+  products    Product[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("categories")
+}
+
+model Product {
+  id           String        @id @default(cuid())
+  sku          String        @unique
+  name         String
+  slug         String        @unique
+  description  String?
+  shortDesc    String?       // Descrição curta para listagem
+
+  // Preços
+  price        Decimal       @db.Decimal(10, 2)
+  comparePrice Decimal?      @db.Decimal(10, 2) // Preço "de"
+  costPrice    Decimal?      @db.Decimal(10, 2) // Custo
+
+  // Preços B2B por nível
+  priceSilver  Decimal?      @db.Decimal(10, 2)
+  priceGold    Decimal?      @db.Decimal(10, 2)
+  priceDiamond Decimal?      @db.Decimal(10, 2)
+
+  // Estoque
+  stockQty     Int           @default(0)
+  stockStatus  StockStatus   @default(ON_ORDER)
+  leadTimeDays Int?          // Prazo de entrega para sob encomenda
+
+  // Classificação
+  categoryId   String
+  category     Category      @relation(fields: [categoryId], references: [id])
+  brand        String        @default("Huawei")
+  partNumber   String?       // Part number do fabricante
+  model        String?
+
+  // Física
+  weight       Decimal?      @db.Decimal(8, 3) // kg
+  width        Decimal?      @db.Decimal(8, 2) // cm
+  height       Decimal?      @db.Decimal(8, 2) // cm
+  depth        Decimal?      @db.Decimal(8, 2) // cm
+
+  // SEO
+  metaTitle    String?
+  metaDesc     String?
+
+  // Status
+  status       ProductStatus @default(ACTIVE)
+  isFeatured   Boolean       @default(false)
+  isNew        Boolean       @default(false)
+
+  // Relações
+  images       ProductImage[]
+  specs        ProductSpec[]
+  documents    ProductDocument[]
+  variants     ProductVariant[]
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+  wishlistItems WishlistItem[]
+  quoteItems   QuoteItem[]
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([categoryId])
+  @@index([brand])
+  @@index([status])
+  @@index([stockStatus])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  sortOrder Int     @default(0)
+  isPrimary Boolean @default(false)
+
+  @@map("product_images")
+}
+
+model ProductSpec {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  group     String? // "Rede", "Físico", "Alimentação"
+  label     String  // "Portas", "Velocidade", "Tipo Fibra"
+  value     String  // "48", "10 Gbps", "Monomodo"
+  sortOrder Int     @default(0)
+
+  @@map("product_specs")
+}
+
+model ProductDocument {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String  // "Datasheet", "Manual", "Quick Start Guide"
+  url       String
+  type      String  // "pdf", "doc"
+  fileSize  Int?    // bytes
+
+  @@map("product_documents")
+}
+
+model ProductVariant {
+  id         String  @id @default(cuid())
+  productId  String
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku        String  @unique
+  name       String  // "1G SFP-LX 10km", "Cat6 3m Azul"
+  price      Decimal @db.Decimal(10, 2)
+  stockQty   Int     @default(0)
+  attributes Json    // {"comprimento": "3m", "cor": "azul"}
+
+  @@map("product_variants")
+}
+
+// ==========================================
+// CARRINHO DE COMPRAS
+// ==========================================
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?    @unique
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId String?    @unique // Para carrinho anônimo
+  items     CartItem[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String  @id @default(cuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
+  unitPrice Decimal @db.Decimal(10, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+// ==========================================
+// PEDIDOS
+// ==========================================
+
+enum OrderStatus {
+  PENDING         // Aguardando pagamento
+  PAID            // Pago
+  PROCESSING      // Em separação
+  SHIPPED         // Enviado
+  DELIVERED       // Entregue
+  CANCELLED       // Cancelado
+  REFUNDED        // Reembolsado
+}
+
+enum PaymentMethod {
+  PIX
+  CREDIT_CARD
+  BOLETO
+  BANK_TRANSFER
+  B2B_INVOICE     // Faturamento B2B 30/60/90 dias
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  REFUNDED
+  EXPIRED
+}
+
+model Order {
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique // PT-2026-000001
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  addressId       String
+  address         Address       @relation(fields: [addressId], references: [id])
+
+  // Valores
+  subtotal        Decimal       @db.Decimal(10, 2)
+  shipping        Decimal       @db.Decimal(10, 2)
+  discount        Decimal       @db.Decimal(10, 2) @default(0)
+  tax             Decimal       @db.Decimal(10, 2) @default(0)
+  total           Decimal       @db.Decimal(10, 2)
+
+  // Status
+  status          OrderStatus   @default(PENDING)
+
+  // Pagamento
+  paymentMethod   PaymentMethod
+  paymentStatus   PaymentStatus @default(PENDING)
+  stripePaymentId String?
+  installments    Int           @default(1) // Parcelas
+  invoiceDueDays  Int?          // Prazo faturamento B2B (30, 60, 90)
+
+  // Frete
+  shippingMethod  String?       // "Correios PAC", "Jadlog", "DHL"
+  trackingCode    String?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+
+  // NF-e
+  invoiceNumber   String?
+  invoiceKey      String?
+  invoiceUrl      String?
+
+  // Observações
+  notes           String?
+  internalNotes   String?
+
+  items           OrderItem[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([orderNumber])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  productName String  // Snapshot do nome (caso o produto mude)
+  productSku  String  // Snapshot do SKU
+  quantity    Int
+  unitPrice   Decimal @db.Decimal(10, 2)
+  totalPrice  Decimal @db.Decimal(10, 2)
+
+  @@map("order_items")
+}
+
+// ==========================================
+// COTAÇÃO B2B
+// ==========================================
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  APPROVED
+  REJECTED
+  EXPIRED
+  CONVERTED  // Convertida em pedido
+}
+
+model Quote {
+  id           String      @id @default(cuid())
+  quoteNumber  String      @unique // COT-2026-000001
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+
+  // Valores
+  subtotal     Decimal     @db.Decimal(10, 2)
+  discount     Decimal     @db.Decimal(10, 2) @default(0)
+  total        Decimal     @db.Decimal(10, 2)
+
+  // Status
+  status       QuoteStatus @default(DRAFT)
+  validUntil   DateTime?
+  convertedOrderId String?
+
+  // Observações
+  notes        String?
+  internalNotes String?
+
+  items        QuoteItem[]
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([userId])
+  @@map("quotes")
+}
+
+model QuoteItem {
+  id          String  @id @default(cuid())
+  quoteId     String
+  quote       Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  quantity    Int
+  unitPrice   Decimal @db.Decimal(10, 2)
+  totalPrice  Decimal @db.Decimal(10, 2)
+
+  @@map("quote_items")
+}
+
+// ==========================================
+// WISHLIST
+// ==========================================
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@map("wishlist_items")
+}
+
+// ==========================================
+// CONFIGURAÇÕES DA LOJA
+// ==========================================
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  type  String @default("string") // string, number, boolean, json
+
+  @@map("settings")
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String?
+  imageUrl  String
+  linkUrl   String?
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  startDate DateTime?
+  endDate   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("banners")
+}
