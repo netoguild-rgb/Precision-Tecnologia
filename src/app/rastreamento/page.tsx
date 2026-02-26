@@ -13,6 +13,7 @@ import {
     Mail,
     Package,
     Search,
+    ShieldCheck,
     Truck,
 } from "lucide-react";
 
@@ -40,6 +41,7 @@ type TrackOrderResponse = {
         paymentReference: string | null;
         paymentExpiresAt: string | null;
         paidAt: string | null;
+        notes: string | null;
         shippingMethod: string | null;
         trackingCode: string | null;
         shippedAt: string | null;
@@ -52,6 +54,9 @@ type TrackOrderResponse = {
             unitPrice: string | number;
             totalPrice: string | number;
         }>;
+    };
+    permissions?: {
+        canEditDelivery?: boolean;
     };
 };
 
@@ -145,6 +150,14 @@ export default function RastreamentoPage() {
     const [error, setError] = useState("");
     const [result, setResult] = useState<TrackOrderResponse["order"] | null>(null);
     const [copied, setCopied] = useState(false);
+    const [canEditDelivery, setCanEditDelivery] = useState(false);
+    const [deliveryDescription, setDeliveryDescription] = useState("");
+    const [shippingMethodInput, setShippingMethodInput] = useState("");
+    const [trackingCodeInput, setTrackingCodeInput] = useState("");
+    const [statusInput, setStatusInput] = useState<TrackOrderResponse["order"]["status"]>("PENDING");
+    const [savingDelivery, setSavingDelivery] = useState(false);
+    const [saveDeliveryError, setSaveDeliveryError] = useState("");
+    const [saveDeliverySuccess, setSaveDeliverySuccess] = useState("");
 
     const timeline = useMemo<Step[]>(() => {
         if (!result) return [];
@@ -199,6 +212,9 @@ export default function RastreamentoPage() {
         setError("");
         setCopied(false);
         setResult(null);
+        setCanEditDelivery(false);
+        setSaveDeliveryError("");
+        setSaveDeliverySuccess("");
 
         if (!orderNumber || !email) {
             setError("Preencha numero do pedido e email");
@@ -223,6 +239,11 @@ export default function RastreamentoPage() {
             }
 
             setResult(data.order);
+            setDeliveryDescription(data.order.notes || "");
+            setShippingMethodInput(data.order.shippingMethod || "");
+            setTrackingCodeInput(data.order.trackingCode || "");
+            setStatusInput(data.order.status);
+            setCanEditDelivery(Boolean(data.permissions?.canEditDelivery));
         } catch {
             setError("Erro de conexao ao consultar pedido");
         } finally {
@@ -238,6 +259,66 @@ export default function RastreamentoPage() {
             setTimeout(() => setCopied(false), 1800);
         } catch {
             setCopied(false);
+        }
+    }
+
+    async function handleSaveDelivery() {
+        if (!result) return;
+
+        setSaveDeliveryError("");
+        setSaveDeliverySuccess("");
+        setSavingDelivery(true);
+
+        try {
+            const res = await fetch(`/api/admin/orders/${result.id}/delivery`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    deliveryDescription,
+                    shippingMethod: shippingMethodInput,
+                    trackingCode: trackingCodeInput,
+                    status: statusInput,
+                }),
+            });
+
+            const data = (await res.json()) as {
+                error?: string;
+                order?: {
+                    notes: string | null;
+                    shippingMethod: string | null;
+                    trackingCode: string | null;
+                    status: TrackOrderResponse["order"]["status"];
+                    shippedAt: string | null;
+                    deliveredAt: string | null;
+                    updatedAt: string;
+                };
+            };
+
+            if (!res.ok || !data.order) {
+                setSaveDeliveryError(data.error || "Nao foi possivel salvar a entrega");
+                return;
+            }
+
+            setResult((prev) =>
+                prev
+                    ? {
+                        ...prev,
+                        notes: data.order?.notes ?? null,
+                        shippingMethod: data.order?.shippingMethod ?? null,
+                        trackingCode: data.order?.trackingCode ?? null,
+                        status: data.order?.status ?? prev.status,
+                        shippedAt: data.order?.shippedAt ?? prev.shippedAt,
+                        deliveredAt: data.order?.deliveredAt ?? prev.deliveredAt,
+                        updatedAt: data.order?.updatedAt ?? prev.updatedAt,
+                    }
+                    : prev
+            );
+
+            setSaveDeliverySuccess("Atualizacao da entrega salva com sucesso");
+        } catch {
+            setSaveDeliveryError("Erro ao salvar atualizacao");
+        } finally {
+            setSavingDelivery(false);
         }
     }
 
@@ -406,8 +487,107 @@ export default function RastreamentoPage() {
                                     <p className="text-[var(--color-text-muted)]">Metodo de pagamento</p>
                                     <p className="font-medium text-[var(--color-text)]">{result.paymentMethod}</p>
                                 </div>
+                                <div className="text-sm">
+                                    <p className="text-[var(--color-text-muted)]">Descricao da entrega</p>
+                                    <p className="font-medium text-[var(--color-text)]">
+                                        {result.notes || "Sem observacoes de entrega"}
+                                    </p>
+                                </div>
                             </div>
                         </div>
+
+                        {canEditDelivery && (
+                            <div className="bg-white border border-[var(--color-border)] rounded-2xl p-5 md:p-6 shadow-sm">
+                                <h3 className="text-base font-semibold text-[var(--color-text)] inline-flex items-center gap-2">
+                                    <ShieldCheck size={16} className="text-[var(--color-primary)]" />
+                                    Atualizacao manual da entrega (super admin)
+                                </h3>
+                                <p className="text-xs text-[var(--color-text-muted)] mt-1 mb-4">
+                                    Essas alteracoes ficam visiveis para o cliente no rastreamento.
+                                </p>
+
+                                <div className="space-y-3">
+                                    <div>
+                                        <label className="text-xs font-medium text-[var(--color-text-muted)] mb-1.5 block">
+                                            Descricao da entrega
+                                        </label>
+                                        <textarea
+                                            value={deliveryDescription}
+                                            onChange={(e) => setDeliveryDescription(e.target.value)}
+                                            className="w-full min-h-[90px] bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-primary)]"
+                                            placeholder="Ex: Pedido separado e aguardando coleta da transportadora."
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="text-xs font-medium text-[var(--color-text-muted)] mb-1.5 block">
+                                                Transportadora
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={shippingMethodInput}
+                                                onChange={(e) => setShippingMethodInput(e.target.value)}
+                                                className="w-full bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-primary)]"
+                                                placeholder="Ex: Jadlog"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-medium text-[var(--color-text-muted)] mb-1.5 block">
+                                                Codigo de rastreio
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={trackingCodeInput}
+                                                onChange={(e) => setTrackingCodeInput(e.target.value.toUpperCase())}
+                                                className="w-full bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-primary)]"
+                                                placeholder="Ex: BR123456789"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs font-medium text-[var(--color-text-muted)] mb-1.5 block">
+                                            Status do pedido
+                                        </label>
+                                        <select
+                                            value={statusInput}
+                                            onChange={(e) => setStatusInput(e.target.value as TrackOrderResponse["order"]["status"])}
+                                            className="w-full bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-[var(--color-primary)]"
+                                        >
+                                            <option value="PENDING">PENDING</option>
+                                            <option value="PAID">PAID</option>
+                                            <option value="PROCESSING">PROCESSING</option>
+                                            <option value="SHIPPED">SHIPPED</option>
+                                            <option value="DELIVERED">DELIVERED</option>
+                                            <option value="CANCELLED">CANCELLED</option>
+                                            <option value="REFUNDED">REFUNDED</option>
+                                        </select>
+                                    </div>
+
+                                    {saveDeliveryError && (
+                                        <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                                            {saveDeliveryError}
+                                        </div>
+                                    )}
+                                    {saveDeliverySuccess && (
+                                        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+                                            {saveDeliverySuccess}
+                                        </div>
+                                    )}
+
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveDelivery}
+                                        disabled={savingDelivery}
+                                        className="btn-primary w-full md:w-auto inline-flex items-center justify-center gap-2"
+                                    >
+                                        {savingDelivery && <Loader2 size={14} className="animate-spin" />}
+                                        {savingDelivery ? "Salvando..." : "Salvar atualizacao de entrega"}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="bg-white border border-[var(--color-border)] rounded-2xl p-5 md:p-6 shadow-sm">
                             <h3 className="text-base font-semibold text-[var(--color-text)] mb-4">
@@ -437,4 +617,3 @@ export default function RastreamentoPage() {
         </div>
     );
 }
-

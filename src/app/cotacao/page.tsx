@@ -82,15 +82,25 @@ export default function CotacaoPage() {
         <div className="min-h-screen">
             {/* Hero */}
             <section className="relative bg-gradient-to-br from-[var(--color-primary-dark)] via-[var(--color-primary)] to-[var(--color-accent)] text-white overflow-hidden">
-                {/* Decorative elements */}
-                <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse-slow" />
-                    <div className="absolute bottom-10 right-10 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: "3s" }} />
+                <div className="absolute inset-0">
+                    <video
+                        className="quote-hero-video"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="metadata"
+                        aria-hidden="true"
+                    >
+                        <source src="/videos/geracao-video-concluida.mp4" type="video/mp4" />
+                    </video>
                 </div>
-                <div className="absolute inset-0 grid-pattern opacity-5" />
+                <div className="absolute inset-0 quote-hero-overlay" />
+                <div className="absolute inset-0 quote-hero-lights" />
+                <div className="absolute inset-0 grid-pattern opacity-[0.07]" />
 
                 <div className="relative max-w-7xl mx-auto px-4 py-16 md:py-24">
-                    <div className="max-w-3xl">
+                    <div className="max-w-3xl quote-hero-content">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6 border border-white/20">
                             <MessageSquareQuote size={14} />
                             Cotação para Empresas
