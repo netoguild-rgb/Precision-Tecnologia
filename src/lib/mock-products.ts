@@ -127,7 +127,7 @@ export const mockProducts: Product[] = [
         manageable: true,
         poe: false,
         featured: false,
-        images: [],
+        images: ["/images/products/cloudengine-s12700e-8.png"],
     },
     {
         id: "sw-004",
@@ -255,7 +255,7 @@ export const mockProducts: Product[] = [
         },
         wifiStandard: "Wi-Fi 7",
         isNew: true,
-        images: [],
+        images: ["/images/products/airengine-8760-x1-pro.png"],
     },
 
     // ============ GBICs / SFP ============
@@ -365,7 +365,7 @@ export const mockProducts: Product[] = [
             "Comprimento": "1.5m",
             "Conector": "RJ-45",
         },
-        images: [],
+        images: ["/images/products/patch-cord-utp-cat6-1-5m-azul.jpg"],
     },
     {
         id: "pc-002",
@@ -389,7 +389,7 @@ export const mockProducts: Product[] = [
         },
         connectorType: "LC",
         fiberType: "SM",
-        images: [],
+        images: ["/images/products/patch-cord-fibra-sm-lc-lc-3m.jpg"],
     },
 
     // ============ PATCH PANELS ============
@@ -414,7 +414,7 @@ export const mockProducts: Product[] = [
             "Montagem": "1U Rack 19\"",
         },
         ports: 24,
-        images: [],
+        images: ["/images/products/patch-panel-24p-cat6-utp-1u.jpg"],
     },
 
     // ============ FIREWALLS ============
@@ -440,7 +440,7 @@ export const mockProducts: Product[] = [
             "IA": "HiSec Engine com detecção avançada",
         },
         featured: true,
-        images: [],
+        images: ["/images/products/hisecengine-usg6500e.png"],
     },
 ];
 

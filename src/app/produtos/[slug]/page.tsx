@@ -438,7 +438,19 @@ export default function ProductDetailPage() {
                                     className="product-card rounded-xl overflow-hidden group block"
                                 >
                                     <div className="aspect-[4/3] bg-[var(--color-bg-elevated)] flex items-center justify-center border-b border-[var(--color-border)]">
-                                        <Network size={28} className="text-[var(--color-border-hover)]" />
+                                        {p.images[0] ? (
+                                            <div className="relative w-full h-full bg-white">
+                                                <Image
+                                                    src={p.images[0]}
+                                                    alt={p.name}
+                                                    fill
+                                                    className="object-contain p-3"
+                                                    sizes="(max-width: 1024px) 50vw, 25vw"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <Network size={28} className="text-[var(--color-border-hover)]" />
+                                        )}
                                     </div>
                                     <div className="p-3 bg-white">
                                         <p className="text-[10px] text-[var(--color-primary)] font-medium mb-0.5">
