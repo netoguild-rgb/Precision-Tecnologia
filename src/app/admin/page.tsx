@@ -11,6 +11,9 @@ import {
     PackageCheck,
     PackageX,
     Loader2,
+    ShoppingCart,
+    ClipboardList,
+    Truck,
 } from "lucide-react";
 
 interface Stats {

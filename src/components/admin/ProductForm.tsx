@@ -37,6 +37,75 @@ function generateSlug(name: string) {
         .replace(/^-|-$/g, "");
 }
 
+function applySkuMask(value: string) {
+    return value
+        .toUpperCase()
+        .replace(/[^A-Z0-9\-_.]/g, "");
+}
+
+function applyPartNumberMask(value: string) {
+    return value
+        .toUpperCase()
+        .replace(/[^A-Z0-9\-./]/g, "");
+}
+
+function parseLocaleNumber(value: string): number | null {
+    const cleaned = value
+        .replace(/[R$\s]/g, "")
+        .replace(/\./g, "")
+        .replace(",", ".")
+        .trim();
+
+    if (!cleaned) return null;
+
+    const numeric = Number(cleaned);
+    return Number.isFinite(numeric) ? numeric : null;
+}
+
+function applyCurrencyMask(value: string) {
+    const numeric = parseLocaleNumber(value);
+    if (numeric === null) return "";
+
+    return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    }).format(numeric);
+}
+
+function applyIntegerMask(value: string) {
+    const digits = value.replace(/\D/g, "");
+    if (!digits) return "";
+    return String(parseInt(digits, 10));
+}
+
+function applyDecimalMask(value: string, maxDecimals = 2) {
+    const sanitized = value.replace(/[^\d.,]/g, "").replace(/\./g, ",");
+    if (!sanitized) return "";
+
+    const [intRaw, decimalRaw = ""] = sanitized.split(",");
+    const intPart = intRaw.replace(/\D/g, "");
+    const decimalPart = decimalRaw.replace(/\D/g, "").slice(0, maxDecimals);
+
+    if (!intPart && !decimalPart) return "";
+    if (!decimalPart) return intPart || "0";
+
+    return `${intPart || "0"},${decimalPart}`;
+}
+
+function parseMaskedInteger(value: string) {
+    const digits = value.replace(/\D/g, "");
+    if (!digits) return 0;
+    return parseInt(digits, 10);
+}
+
+function parseMaskedDecimal(value: string): number | null {
+    const cleaned = value.replace(/\./g, "").replace(",", ".").trim();
+    if (!cleaned) return null;
+
+    const numeric = Number(cleaned);
+    return Number.isFinite(numeric) ? numeric : null;
+}
+
 export function ProductForm({ productId }: ProductFormProps) {
     const router = useRouter();
     const isEditing = !!productId;
@@ -104,20 +173,20 @@ export function ProductForm({ productId }: ProductFormProps) {
                 setSlug(p.slug || "");
                 setDescription(p.description || "");
                 setShortDesc(p.shortDesc || "");
-                setPrice(String(p.price || ""));
-                setComparePrice(String(p.comparePrice || ""));
-                setCostPrice(String(p.costPrice || ""));
+                setPrice(applyCurrencyMask(String(p.price || "")));
+                setComparePrice(applyCurrencyMask(String(p.comparePrice || "")));
+                setCostPrice(applyCurrencyMask(String(p.costPrice || "")));
                 setCategoryId(p.categoryId || "");
                 setBrand(p.brand || "Huawei");
                 setPartNumber(p.partNumber || "");
                 setProductModel(p.model || "");
-                setWeight(String(p.weight || ""));
-                setWidth(String(p.width || ""));
-                setHeight(String(p.height || ""));
-                setDepth(String(p.depth || ""));
-                setStockQty(String(p.stockQty || 0));
+                setWeight(applyDecimalMask(String(p.weight || ""), 3));
+                setWidth(applyDecimalMask(String(p.width || ""), 2));
+                setHeight(applyDecimalMask(String(p.height || ""), 2));
+                setDepth(applyDecimalMask(String(p.depth || ""), 2));
+                setStockQty(applyIntegerMask(String(p.stockQty || 0)));
                 setStockStatus(p.stockStatus || "ON_ORDER");
-                setLeadTimeDays(String(p.leadTimeDays || ""));
+                setLeadTimeDays(applyIntegerMask(String(p.leadTimeDays || "")));
                 setStatus(p.status || "ACTIVE");
                 setIsFeatured(p.isFeatured || false);
                 setIsNew(p.isNew || false);
@@ -150,6 +219,19 @@ export function ProductForm({ productId }: ProductFormProps) {
             return;
         }
 
+        const parsedPrice = parseLocaleNumber(price);
+        if (parsedPrice === null) {
+            setError("Preencha um preÃ§o de venda vÃ¡lido");
+            return;
+        }
+
+        const parsedComparePrice = parseLocaleNumber(comparePrice);
+        const parsedCostPrice = parseLocaleNumber(costPrice);
+        const parsedWeight = parseMaskedDecimal(weight);
+        const parsedWidth = parseMaskedDecimal(width);
+        const parsedHeight = parseMaskedDecimal(height);
+        const parsedDepth = parseMaskedDecimal(depth);
+
         setSaving(true);
         try {
             const body = {
@@ -158,20 +240,20 @@ export function ProductForm({ productId }: ProductFormProps) {
                 slug,
                 description: description || null,
                 shortDesc: shortDesc || null,
-                price: parseFloat(price),
-                comparePrice: comparePrice ? parseFloat(comparePrice) : null,
-                costPrice: costPrice ? parseFloat(costPrice) : null,
+                price: parsedPrice,
+                comparePrice: parsedComparePrice,
+                costPrice: parsedCostPrice,
                 categoryId,
                 brand,
                 partNumber: partNumber || null,
                 model: productModel || null,
-                weight: weight ? parseFloat(weight) : null,
-                width: width ? parseFloat(width) : null,
-                height: height ? parseFloat(height) : null,
-                depth: depth ? parseFloat(depth) : null,
-                stockQty: parseInt(stockQty) || 0,
+                weight: parsedWeight,
+                width: parsedWidth,
+                height: parsedHeight,
+                depth: parsedDepth,
+                stockQty: parseMaskedInteger(stockQty),
                 stockStatus,
-                leadTimeDays: leadTimeDays ? parseInt(leadTimeDays) : null,
+                leadTimeDays: leadTimeDays ? parseMaskedInteger(leadTimeDays) : null,
                 status,
                 isFeatured,
                 isNew,
@@ -265,7 +347,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                         <input
                             type="text"
                             value={sku}
-                            onChange={(e) => setSku(e.target.value)}
+                            onChange={(e) => setSku(applySkuMask(e.target.value))}
                             className="admin-input"
                             placeholder="Ex: HW-S5735-48T"
                             required
@@ -276,7 +358,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                         <input
                             type="text"
                             value={slug}
-                            onChange={(e) => setSlug(e.target.value)}
+                            onChange={(e) => setSlug(generateSlug(e.target.value))}
                             className="admin-input"
                             placeholder="switch-huawei-s5735"
                             required
@@ -287,7 +369,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                         <input
                             type="text"
                             value={partNumber}
-                            onChange={(e) => setPartNumber(e.target.value)}
+                            onChange={(e) => setPartNumber(applyPartNumberMask(e.target.value))}
                             className="admin-input"
                             placeholder="98012021"
                         />
@@ -331,35 +413,41 @@ export function ProductForm({ productId }: ProductFormProps) {
                     <div>
                         <label className="admin-label">Preço de Venda (BRL) *</label>
                         <input
-                            type="number"
-                            step="0.01"
+                            type="text"
+                            inputMode="decimal"
                             value={price}
-                            onChange={(e) => setPrice(e.target.value)}
+                            onChange={(e) => setPrice(applyCurrencyMask(e.target.value))}
                             className="admin-input"
-                            placeholder="0.00"
+                            placeholder="R$ 0,00"
                             required
                         />
                     </div>
                     <div>
                         <label className="admin-label">Preço Comparativo (De)</label>
                         <input
-                            type="number"
-                            step="0.01"
+                            type="text"
+                            inputMode="decimal"
                             value={comparePrice}
-                            onChange={(e) => setComparePrice(e.target.value)}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setComparePrice(value ? applyCurrencyMask(value) : "");
+                            }}
                             className="admin-input"
-                            placeholder="0.00"
+                            placeholder="R$ 0,00"
                         />
                     </div>
                     <div>
                         <label className="admin-label">Preço de Custo</label>
                         <input
-                            type="number"
-                            step="0.01"
+                            type="text"
+                            inputMode="decimal"
                             value={costPrice}
-                            onChange={(e) => setCostPrice(e.target.value)}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                setCostPrice(value ? applyCurrencyMask(value) : "");
+                            }}
                             className="admin-input"
-                            placeholder="0.00"
+                            placeholder="R$ 0,00"
                         />
                     </div>
                 </div>
@@ -405,9 +493,10 @@ export function ProductForm({ productId }: ProductFormProps) {
                     <div>
                         <label className="admin-label">Quantidade</label>
                         <input
-                            type="number"
+                            type="text"
+                            inputMode="numeric"
                             value={stockQty}
-                            onChange={(e) => setStockQty(e.target.value)}
+                            onChange={(e) => setStockQty(applyIntegerMask(e.target.value))}
                             className="admin-input"
                         />
                     </div>
@@ -427,9 +516,10 @@ export function ProductForm({ productId }: ProductFormProps) {
                     <div>
                         <label className="admin-label">Prazo de Entrega (dias)</label>
                         <input
-                            type="number"
+                            type="text"
+                            inputMode="numeric"
                             value={leadTimeDays}
-                            onChange={(e) => setLeadTimeDays(e.target.value)}
+                            onChange={(e) => setLeadTimeDays(applyIntegerMask(e.target.value))}
                             className="admin-input"
                             placeholder="Para sob encomenda"
                         />
@@ -456,41 +546,45 @@ export function ProductForm({ productId }: ProductFormProps) {
                     <div>
                         <label className="admin-label">Peso (kg)</label>
                         <input
-                            type="number"
-                            step="0.001"
+                            type="text"
+                            inputMode="decimal"
                             value={weight}
-                            onChange={(e) => setWeight(e.target.value)}
+                            onChange={(e) => setWeight(applyDecimalMask(e.target.value, 3))}
                             className="admin-input"
+                            placeholder="0,000"
                         />
                     </div>
                     <div>
                         <label className="admin-label">Largura (cm)</label>
                         <input
-                            type="number"
-                            step="0.01"
+                            type="text"
+                            inputMode="decimal"
                             value={width}
-                            onChange={(e) => setWidth(e.target.value)}
+                            onChange={(e) => setWidth(applyDecimalMask(e.target.value, 2))}
                             className="admin-input"
+                            placeholder="0,00"
                         />
                     </div>
                     <div>
                         <label className="admin-label">Altura (cm)</label>
                         <input
-                            type="number"
-                            step="0.01"
+                            type="text"
+                            inputMode="decimal"
                             value={height}
-                            onChange={(e) => setHeight(e.target.value)}
+                            onChange={(e) => setHeight(applyDecimalMask(e.target.value, 2))}
                             className="admin-input"
+                            placeholder="0,00"
                         />
                     </div>
                     <div>
                         <label className="admin-label">Profundidade (cm)</label>
                         <input
-                            type="number"
-                            step="0.01"
+                            type="text"
+                            inputMode="decimal"
                             value={depth}
-                            onChange={(e) => setDepth(e.target.value)}
+                            onChange={(e) => setDepth(applyDecimalMask(e.target.value, 2))}
                             className="admin-input"
+                            placeholder="0,00"
                         />
                     </div>
                 </div>

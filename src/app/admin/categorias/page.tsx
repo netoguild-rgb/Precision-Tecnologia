@@ -115,7 +115,7 @@ export default function AdminCategoriesPage() {
                             <input
                                 type="text"
                                 value={slug}
-                                onChange={(e) => setSlug(e.target.value)}
+                                onChange={(e) => setSlug(generateSlug(e.target.value))}
                                 placeholder="switches"
                                 className="admin-input"
                                 required
