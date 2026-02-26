@@ -1,7 +1,8 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { compare } from "bcrypt";
+import { compare } from "bcryptjs";
 import prisma from "@/lib/prisma";
+import { authSecret } from "@/lib/auth-secret";
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -61,5 +62,5 @@ export const authOptions: NextAuthOptions = {
     pages: {
         signIn: "/login",
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: authSecret,
 };

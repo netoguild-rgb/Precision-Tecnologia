@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
+import { authSecret } from "@/lib/auth-secret";
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
@@ -9,7 +10,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/admin")) {
         const token = await getToken({
             req: request,
-            secret: process.env.NEXTAUTH_SECRET,
+            secret: authSecret,
         });
 
         // Not logged in → redirect to login
