@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, FolderOpen, Loader2, Trash2 } from "lucide-react";
+import { Plus, FolderOpen, Loader2 } from "lucide-react";
 
 interface Category {
     id: string;

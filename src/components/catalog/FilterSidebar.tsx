@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
-import { FilterGroup } from "@/lib/mock-products";
+import { FilterGroup } from "@/lib/catalog";
 
 interface FilterSidebarProps {
     filterGroups: FilterGroup[];

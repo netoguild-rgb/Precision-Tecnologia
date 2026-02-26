@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Product } from "./mock-products";
+import { Product } from "./catalog";
 
 export interface CartItem {
     product: Product;

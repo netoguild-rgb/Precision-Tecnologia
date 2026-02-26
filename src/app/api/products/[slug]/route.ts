@@ -9,7 +9,7 @@ export async function GET(
     try {
         const { slug } = await params;
 
-        const product = await prisma.product.findUnique({
+        const product = await prisma.product.findFirst({
             where: { slug, status: "ACTIVE" },
             include: {
                 category: true,
@@ -35,7 +35,11 @@ export async function GET(
                 status: "ACTIVE",
             },
             include: {
-                images: { where: { isPrimary: true }, take: 1 },
+                images: {
+                    orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
+                    take: 1,
+                },
+                category: { select: { id: true, name: true, slug: true } },
             },
             take: 4,
         });

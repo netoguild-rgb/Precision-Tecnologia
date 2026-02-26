@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -22,7 +22,7 @@ import {
     Calculator,
     Check,
 } from "lucide-react";
-import { mockProducts, Product } from "@/lib/mock-products";
+import { CatalogApiProduct, Product, toCatalogProduct } from "@/lib/catalog";
 import { CompatibilityChecker } from "@/components/product/CompatibilityChecker";
 import { RackCalculator } from "@/components/tools/RackCalculator";
 import { useCartStore } from "@/lib/cart-store";
@@ -30,7 +30,6 @@ import { useCartStore } from "@/lib/cart-store";
 export default function ProductDetailPage() {
     const params = useParams();
     const slug = params.slug as string;
-    const product = mockProducts.find((p) => p.slug === slug);
 
     const [selectedImage, setSelectedImage] = useState(0);
     const [specsOpen, setSpecsOpen] = useState(true);
@@ -38,13 +37,70 @@ export default function ProductDetailPage() {
     const [cep, setCep] = useState("");
     const [showQuoteModal, setShowQuoteModal] = useState(false);
     const [showAddedToast, setShowAddedToast] = useState(false);
+    const [product, setProduct] = useState<Product | null>(null);
+    const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+    const [loadingProduct, setLoadingProduct] = useState(true);
     const addItem = useCartStore((s) => s.addItem);
+
+    useEffect(() => {
+        if (!slug) return;
+        let cancelled = false;
+
+        async function loadProduct() {
+            setLoadingProduct(true);
+            try {
+                const res = await fetch(`/api/products/${slug}`, { cache: "no-store" });
+                if (!res.ok) {
+                    if (!cancelled) {
+                        setProduct(null);
+                        setRelatedProducts([]);
+                    }
+                    return;
+                }
+
+                const data = await res.json();
+                const mappedProduct = toCatalogProduct(data.product as CatalogApiProduct);
+                const mappedRelated = (data.related || []).map((item: CatalogApiProduct) =>
+                    toCatalogProduct(item)
+                );
+
+                if (!cancelled) {
+                    setProduct(mappedProduct);
+                    setRelatedProducts(mappedRelated);
+                    setSelectedImage(0);
+                }
+            } catch {
+                if (!cancelled) {
+                    setProduct(null);
+                    setRelatedProducts([]);
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoadingProduct(false);
+                }
+            }
+        }
+
+        loadProduct();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [slug]);
 
     function handleAddToCart() {
         if (!product) return;
         addItem(product, qty);
         setShowAddedToast(true);
         setTimeout(() => setShowAddedToast(false), 2500);
+    }
+
+    if (loadingProduct) {
+        return (
+            <div className="min-h-screen bg-[var(--color-bg)] flex items-center justify-center">
+                <p className="text-sm text-[var(--color-text-muted)]">Carregando produto...</p>
+            </div>
+        );
     }
 
     if (!product) {
@@ -65,22 +121,12 @@ export default function ProductDetailPage() {
         );
     }
 
-    // Cross-sell: products from same category
-    const crossSell = mockProducts
-        .filter((p) => p.categorySlug === product.categorySlug && p.id !== product.id)
-        .slice(0, 4);
-
-    // Complementary products from other categories
-    const complementary = mockProducts
-        .filter((p) => p.categorySlug !== product.categorySlug)
-        .slice(0, 4);
-
-    const relatedProducts = crossSell.length > 0 ? crossSell : complementary;
-
     const priceVista = (product.price * 0.95).toLocaleString("pt-BR", {
         style: "currency",
         currency: "BRL",
     });
+    const isAvailable = product.stockStatus === "IN_STOCK" || product.stockStatus === "LOW_STOCK";
+    const isOnOrder = product.stockStatus === "ON_ORDER";
 
     return (
         <div className="min-h-screen bg-[var(--color-bg)]">
@@ -124,9 +170,9 @@ export default function ProductDetailPage() {
                                 )}
                             </div>
                             {/* Stock badge */}
-                            <span className={`absolute top-4 left-4 badge-stock ${product.stockStatus === "IN_STOCK" ? "badge-stock-available" : "badge-stock-order"
+                            <span className={`absolute top-4 left-4 badge-stock ${isAvailable ? "badge-stock-available" : "badge-stock-order"
                                 }`}>
-                                <span className={`w-2 h-2 rounded-full pulse-dot ${product.stockStatus === "IN_STOCK" ? "bg-[var(--color-accent)]" : "bg-[var(--color-warning)]"
+                                <span className={`w-2 h-2 rounded-full pulse-dot ${isAvailable ? "bg-[var(--color-accent)]" : "bg-[var(--color-warning)]"
                                     }`} />
                                 {product.stockLabel}
                             </span>
@@ -232,24 +278,28 @@ export default function ProductDetailPage() {
                             </div>
 
                             {/* Stock status */}
-                            <div className={`flex items-center gap-2 mb-5 p-3 rounded-lg ${product.stockStatus === "IN_STOCK"
+                            <div className={`flex items-center gap-2 mb-5 p-3 rounded-lg ${isAvailable
                                 ? "bg-[#ECFDF5] border border-[#A7F3D0]"
                                 : "bg-[#FFFBEB] border border-[#FDE68A]"
                                 }`}>
-                                {product.stockStatus === "IN_STOCK" ? (
+                                {isAvailable ? (
                                     <>
                                         <CheckCircle size={18} className="text-[var(--color-accent)]" />
                                         <div>
-                                            <p className="text-sm font-semibold text-[var(--color-accent)]">Em Estoque</p>
-                                            <p className="text-xs text-[var(--color-accent-dark)]">Envio em até 24h</p>
+                                            <p className="text-sm font-semibold text-[var(--color-accent)]">{product.stockLabel}</p>
+                                            <p className="text-xs text-[var(--color-accent-dark)]">
+                                                {product.stockStatus === "LOW_STOCK" ? "Ultimas unidades disponiveis" : "Envio em ate 24h"}
+                                            </p>
                                         </div>
                                     </>
                                 ) : (
                                     <>
                                         <Clock size={18} className="text-[var(--color-warning)]" />
                                         <div>
-                                            <p className="text-sm font-semibold text-[var(--color-warning)]">Sob Encomenda</p>
-                                            <p className="text-xs text-amber-700">Prazo estimado: 5-15 dias</p>
+                                            <p className="text-sm font-semibold text-[var(--color-warning)]">{product.stockLabel}</p>
+                                            <p className="text-xs text-amber-700">
+                                                {isOnOrder ? "Prazo estimado: 5-15 dias" : "Sem previsao de reposicao"}
+                                            </p>
                                         </div>
                                     </>
                                 )}

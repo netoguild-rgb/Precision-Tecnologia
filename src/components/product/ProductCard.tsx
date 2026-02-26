@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Network, ShoppingCart } from "lucide-react";
-import { Product } from "@/lib/mock-products";
+import { Product } from "@/lib/catalog";
 import { useCartStore } from "@/lib/cart-store";
 
 interface ProductCardProps {
@@ -12,6 +12,8 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
     const addItem = useCartStore((s) => s.addItem);
+    const isAvailable = product.stockStatus === "IN_STOCK" || product.stockStatus === "LOW_STOCK";
+    const isOnOrder = product.stockStatus === "ON_ORDER";
 
     function handleAddToCart(e: React.MouseEvent) {
         e.preventDefault();
@@ -42,17 +44,17 @@ export function ProductCard({ product }: ProductCardProps) {
 
                 {/* Stock badge */}
                 <span
-                    className={`absolute top-3 left-3 badge-stock ${product.stockStatus === "IN_STOCK"
+                    className={`absolute top-3 left-3 badge-stock ${isAvailable
                         ? "badge-stock-available"
-                        : product.stockStatus === "ON_ORDER"
+                        : isOnOrder
                             ? "badge-stock-order"
                             : "badge-stock-out"
                         }`}
                 >
                     <span
-                        className={`w-1.5 h-1.5 rounded-full pulse-dot ${product.stockStatus === "IN_STOCK"
+                        className={`w-1.5 h-1.5 rounded-full pulse-dot ${isAvailable
                             ? "bg-[var(--color-accent)]"
-                            : product.stockStatus === "ON_ORDER"
+                            : isOnOrder
                                 ? "bg-[var(--color-warning)]"
                                 : "bg-[var(--color-danger)]"
                             }`}

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Plus, Minus, X, Package } from "lucide-react";
-import { mockProducts, Product } from "@/lib/mock-products";
+import { Search, Plus, Minus, X, Package, Loader2 } from "lucide-react";
+import { CatalogApiProduct, Product, toCatalogProduct } from "@/lib/catalog";
 
 export interface QuoteItem {
     product: Product;
@@ -17,6 +17,8 @@ interface QuoteProductSelectorProps {
 export function QuoteProductSelector({ items, onItemsChange }: QuoteProductSelectorProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loadingProducts, setLoadingProducts] = useState(true);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -31,7 +33,42 @@ export function QuoteProductSelector({ items, onItemsChange }: QuoteProductSelec
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const filteredProducts = mockProducts.filter((p) => {
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadProducts() {
+            setLoadingProducts(true);
+            try {
+                const res = await fetch("/api/products?limit=200", { cache: "no-store" });
+                if (!res.ok) throw new Error("Falha ao carregar produtos");
+
+                const data = await res.json();
+                const mapped = (data.products || []).map((p: CatalogApiProduct) =>
+                    toCatalogProduct(p)
+                );
+
+                if (!cancelled) {
+                    setProducts(mapped);
+                }
+            } catch {
+                if (!cancelled) {
+                    setProducts([]);
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoadingProducts(false);
+                }
+            }
+        }
+
+        loadProducts();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const filteredProducts = products.filter((p) => {
         const alreadyAdded = items.some((item) => item.product.id === p.id);
         if (alreadyAdded) return false;
         if (!searchQuery) return true;
@@ -115,7 +152,12 @@ export function QuoteProductSelector({ items, onItemsChange }: QuoteProductSelec
 
                 {isDropdownOpen && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-[var(--color-border)] max-h-72 overflow-y-auto z-50">
-                        {Object.keys(grouped).length === 0 ? (
+                        {loadingProducts ? (
+                            <div className="px-4 py-6 text-center text-sm text-[var(--color-text-muted)]">
+                                <Loader2 size={20} className="mx-auto mb-2 animate-spin" />
+                                Carregando produtos...
+                            </div>
+                        ) : Object.keys(grouped).length === 0 ? (
                             <div className="px-4 py-6 text-center text-sm text-[var(--color-text-muted)]">
                                 <Package size={24} className="mx-auto mb-2 opacity-40" />
                                 {searchQuery
