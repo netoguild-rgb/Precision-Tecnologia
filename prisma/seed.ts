@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -113,7 +113,7 @@ async function main() {
     const conectoresCat = categories[6];
     const firewallsCat = categories[7];
 
-    const products = [
+    const products: Prisma.ProductUncheckedCreateInput[] = [
         // SWITCHES
         {
             sku: "HW-S5735-L24T4X-V2",
