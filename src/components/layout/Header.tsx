@@ -67,7 +67,7 @@ export function Header() {
                                 alt="Precision Tecnologia"
                                 width={802}
                                 height={230}
-                                className="h-[3.25rem] sm:h-[3.9rem] md:h-[4.55rem] w-auto max-w-[170px] sm:max-w-[221px] md:max-w-[273px] logo-precision"
+                                className="h-[2.75rem] sm:h-[3.3rem] md:h-[3.85rem] w-auto max-w-[145px] sm:max-w-[188px] md:max-w-[232px] logo-precision"
                                 priority
                             />
                             <div className="h-14 sm:h-16 w-px bg-[var(--color-border)] hidden sm:block" />
