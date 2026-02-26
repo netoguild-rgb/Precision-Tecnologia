@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
+import { OrderStatus } from "@prisma/client";
 import prisma from "@/lib/prisma";
 
 export async function GET() {
     try {
-        const soldStatuses = ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] as const;
+        const soldStatuses: OrderStatus[] = [
+            OrderStatus.PAID,
+            OrderStatus.PROCESSING,
+            OrderStatus.SHIPPED,
+            OrderStatus.DELIVERED,
+        ];
 
         const [
             totalProducts,

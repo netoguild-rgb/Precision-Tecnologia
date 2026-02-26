@@ -21,7 +21,10 @@ interface Stats {
     activeProducts: number;
     inStockProducts: number;
     outOfStockProducts: number;
+    supplierRequestedProducts: number;
     totalCategories: number;
+    soldUnits: number;
+    inDeliveryOrders: number;
 }
 
 export default function AdminDashboard() {
@@ -31,21 +34,19 @@ export default function AdminDashboard() {
     useEffect(() => {
         async function loadStats() {
             try {
-                const [productsRes, categoriesRes] = await Promise.all([
-                    fetch("/api/admin/products?limit=1000"),
-                    fetch("/api/admin/categories"),
-                ]);
+                const res = await fetch("/api/admin/dashboard", { cache: "no-store" });
+                if (!res.ok) throw new Error("Erro ao carregar dashboard");
 
-                const productsData = await productsRes.json();
-                const categoriesData = await categoriesRes.json();
-
-                const products = productsData.products || [];
+                const data = await res.json();
                 setStats({
-                    totalProducts: productsData.pagination?.total || products.length,
-                    activeProducts: products.filter((p: { status: string }) => p.status === "ACTIVE").length,
-                    inStockProducts: products.filter((p: { stockStatus: string }) => p.stockStatus === "IN_STOCK").length,
-                    outOfStockProducts: products.filter((p: { stockStatus: string }) => p.stockStatus === "OUT_OF_STOCK").length,
-                    totalCategories: Array.isArray(categoriesData) ? categoriesData.length : 0,
+                    totalProducts: data.totalProducts || 0,
+                    activeProducts: data.activeProducts || 0,
+                    inStockProducts: data.inStockProducts || 0,
+                    outOfStockProducts: data.outOfStockProducts || 0,
+                    supplierRequestedProducts: data.supplierRequestedProducts || 0,
+                    totalCategories: data.totalCategories || 0,
+                    soldUnits: data.soldUnits || 0,
+                    inDeliveryOrders: data.inDeliveryOrders || 0,
                 });
             } catch {
                 setStats({
@@ -53,7 +54,10 @@ export default function AdminDashboard() {
                     activeProducts: 0,
                     inStockProducts: 0,
                     outOfStockProducts: 0,
+                    supplierRequestedProducts: 0,
                     totalCategories: 0,
+                    soldUnits: 0,
+                    inDeliveryOrders: 0,
                 });
             } finally {
                 setLoading(false);
@@ -100,6 +104,27 @@ export default function AdminDashboard() {
             bg: "#FEF2F2",
         },
         {
+            label: "Solicitados do fornecedor",
+            value: stats?.supplierRequestedProducts || 0,
+            icon: ClipboardList,
+            color: "var(--color-warning)",
+            bg: "#FFF7ED",
+        },
+        {
+            label: "Vendidos",
+            value: stats?.soldUnits || 0,
+            icon: ShoppingCart,
+            color: "var(--color-primary)",
+            bg: "#EFF6FF",
+        },
+        {
+            label: "Em entrega",
+            value: stats?.inDeliveryOrders || 0,
+            icon: Truck,
+            color: "#0F766E",
+            bg: "#F0FDFA",
+        },
+        {
             label: "Categorias",
             value: stats?.totalCategories || 0,
             icon: FolderOpen,
@@ -124,7 +149,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
                 {cards.map((card) => {
                     const Icon = card.icon;
                     return (
