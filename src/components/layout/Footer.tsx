@@ -53,13 +53,15 @@ export function Footer() {
                     {/* Brand */}
                     <div>
                         <div className="flex items-center gap-3 mb-4">
-                            <Image
-                                src="/images/precision-logo-cropped.png"
-                                alt="Precision Tecnologia"
-                                width={802}
-                                height={230}
-                                className="h-10 sm:h-11 w-auto"
-                            />
+                            <Link href="/" aria-label="Ir para a Home">
+                                <Image
+                                    src="/images/precision-logo-cropped.png"
+                                    alt="Precision Tecnologia"
+                                    width={802}
+                                    height={230}
+                                    className="h-10 sm:h-11 w-auto"
+                                />
+                            </Link>
                         </div>
                         <div className="flex items-center gap-3 mb-4">
                             <Image

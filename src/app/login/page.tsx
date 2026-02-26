@@ -63,13 +63,15 @@ function LoginForm() {
                     <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
 
                     <div className="relative">
-                        <Image
-                            src="/images/precision-logo-cropped.png"
-                            alt="Precision Tecnologia"
-                            width={802}
-                            height={230}
-                            className="h-12 w-auto mx-auto mb-8 brightness-0 invert"
-                        />
+                        <Link href="/" className="inline-block" aria-label="Ir para a Home">
+                            <Image
+                                src="/images/precision-logo-cropped.png"
+                                alt="Precision Tecnologia"
+                                width={802}
+                                height={230}
+                                className="h-12 w-auto mx-auto mb-8 brightness-0 invert"
+                            />
+                        </Link>
 
                         <h2 className="text-2xl font-bold text-white mb-3">
                             Infraestrutura de rede de alta performance

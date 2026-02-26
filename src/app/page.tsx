@@ -190,14 +190,18 @@ function AnimatedStat({ end, suffix, label }: { end: number; suffix: string; lab
 
 export default function HomePage() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded] = useState(true);
   const scrollRef = useScrollReveal();
 
+  const setHeroVideoSpeed = () => {
+    if (!videoRef.current) return;
+    videoRef.current.defaultPlaybackRate = 0.7;
+    videoRef.current.playbackRate = 0.7;
+  };
+
   useEffect(() => {
-    setIsLoaded(true);
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => { });
-    }
+    setHeroVideoSpeed();
+    videoRef.current?.play().catch(() => { });
   }, []);
 
   return (
@@ -214,6 +218,7 @@ export default function HomePage() {
           loop
           playsInline
           preload="auto"
+          onLoadedMetadata={setHeroVideoSpeed}
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src="/videos/datacenter-hero.mp4" type="video/mp4" />
