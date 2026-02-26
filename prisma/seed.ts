@@ -422,12 +422,54 @@ async function main() {
         },
     ];
 
+    const productImageBySlug: Record<string, string> = {
+        "cloudengine-s5735-l24t4x-v2": "/images/products/cloudengine-s5735-l-v2.png",
+        "cloudengine-s5735-l48t4x-v2": "/images/products/switch-48p.png",
+        "cloudengine-s12700e-4": "/images/products/cloudengine-s12700e-8.png",
+        "netengine-ar650": "/images/products/netengine-ar650.png",
+        "netengine-ar6300": "/images/products/netengine-ar650.png",
+        "airengine-5773-22p": "/images/products/airengine-5773-22p.png",
+        "airengine-6760-x1": "/images/products/airengine-8760-x1-pro.png",
+        "sfp-1g-lx-10km": "/images/products/sfp-plus-10g-lr-10km.png",
+        "sfp-plus-10g-lr-10km": "/images/products/sfp-plus-10g-lr-10km.png",
+        "sfp-plus-10g-sr-300m": "/images/products/sfp-plus-10g-lr-10km.png",
+        "qsfp28-100g-lr4-10km": "/images/products/sfp-plus-10g-lr-10km.png",
+        "patch-cord-cat6-utp-1m-azul": "/images/products/patch-cord-utp-cat6-1-5m-azul.jpg",
+        "patch-cord-cat6-utp-3m-azul": "/images/products/patch-cord-utp-cat6-1-5m-azul.jpg",
+        "patch-cord-fibra-sm-lc-lc-3m": "/images/products/patch-cord-fibra-sm-lc-lc-3m.jpg",
+        "patch-panel-cat6-24-portas": "/images/products/patch-panel-24p-cat6-utp-1u.jpg",
+        "patch-panel-cat6-48-portas": "/images/products/patch-panel-24p-cat6-utp-1u.jpg",
+        "dio-fibra-optica-24-fibras": "/images/products/patch-panel-24p-cat6-utp-1u.jpg",
+        "conector-rj45-cat6-50un": "/images/products/patch-cord-utp-cat6-1-5m-azul.jpg",
+        "keystone-cat6-femea-10un": "/images/products/patch-cord-utp-cat6-1-5m-azul.jpg",
+        "hisecengine-usg6510e": "/images/products/hisecengine-usg6500e.png",
+    };
+
     for (const productData of products) {
         const product = await prisma.product.upsert({
             where: { sku: productData.sku },
             update: {},
             create: productData,
         });
+
+        const imageUrl = productImageBySlug[productData.slug];
+        if (imageUrl) {
+            const imageCount = await prisma.productImage.count({
+                where: { productId: product.id },
+            });
+
+            if (imageCount === 0) {
+                await prisma.productImage.create({
+                    data: {
+                        productId: product.id,
+                        url: imageUrl,
+                        alt: productData.name,
+                        sortOrder: 0,
+                        isPrimary: true,
+                    },
+                });
+            }
+        }
 
         // Adicionar specs para os primeiros produtos
         if (productData.sku === "HW-S5735-L24T4X-V2") {

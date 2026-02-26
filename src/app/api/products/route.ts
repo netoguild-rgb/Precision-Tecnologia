@@ -71,7 +71,10 @@ export async function GET(request: NextRequest) {
                 where,
                 include: {
                     category: { select: { id: true, name: true, slug: true } },
-                    images: { where: { isPrimary: true }, take: 1 },
+                    images: {
+                        orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
+                        take: 1,
+                    },
                 },
                 orderBy,
                 skip,

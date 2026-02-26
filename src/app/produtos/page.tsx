@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense, useState, useMemo } from "react";
+import { Suspense, useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArrowUpDown, Grid3X3, List, SlidersHorizontal, X, Search } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpDown, Grid3X3, List, SlidersHorizontal, X } from "lucide-react";
 import { FilterSidebar, FilterChips } from "@/components/catalog/FilterSidebar";
 import { ProductCard } from "@/components/product/ProductCard";
-import { mockProducts, getFilterGroups, Product } from "@/lib/mock-products";
+import { buildFilterGroups, CatalogApiProduct, Product, toCatalogProduct } from "@/lib/catalog";
 
 type SortOption = "name" | "price-asc" | "price-desc" | "stock";
 
@@ -45,11 +46,48 @@ function CatalogPageContent() {
     const [sortBy, setSortBy] = useState<SortOption>("name");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loadingProducts, setLoadingProducts] = useState(true);
 
     const filterGroups = useMemo(
-        () => getFilterGroups(activeFilters.category?.[0]),
-        [activeFilters.category]
+        () => buildFilterGroups(products),
+        [products]
     );
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadProducts() {
+            setLoadingProducts(true);
+            try {
+                const res = await fetch("/api/products?limit=200", { cache: "no-store" });
+                if (!res.ok) throw new Error("Falha ao buscar catálogo");
+
+                const data = await res.json();
+                const mapped = (data.products || []).map((product: CatalogApiProduct) =>
+                    toCatalogProduct(product)
+                );
+
+                if (!cancelled) {
+                    setProducts(mapped);
+                }
+            } catch {
+                if (!cancelled) {
+                    setProducts([]);
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoadingProducts(false);
+                }
+            }
+        }
+
+        loadProducts();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const handleFilterChange = (key: string, value: string, checked: boolean) => {
         setActiveFilters((prev) => {
@@ -71,7 +109,7 @@ function CatalogPageContent() {
 
     // Filter products
     const filteredProducts = useMemo(() => {
-        let result = [...mockProducts];
+        let result = [...products];
 
         // Featured / New from URL
         if (isFeatured) result = result.filter((p) => p.featured);
@@ -142,24 +180,31 @@ function CatalogPageContent() {
                     return a.price - b.price;
                 case "price-desc":
                     return b.price - a.price;
-                case "stock":
-                    return a.stockStatus === "IN_STOCK" ? -1 : 1;
+                case "stock": {
+                    const rank: Record<string, number> = {
+                        IN_STOCK: 0,
+                        LOW_STOCK: 1,
+                        ON_ORDER: 2,
+                        OUT_OF_STOCK: 3,
+                    };
+                    return (rank[a.stockStatus] ?? 9) - (rank[b.stockStatus] ?? 9);
+                }
                 default:
                     return a.name.localeCompare(b.name);
             }
         });
 
         return result;
-    }, [activeFilters, sortBy, isFeatured, isNew, searchQuery]);
+    }, [products, activeFilters, sortBy, isFeatured, isNew, searchQuery]);
 
     const pageTitle = searchQuery
         ? `Resultados para "${searchQuery}"`
         : isFeatured
             ? "Produtos em Destaque"
-            : isNew
-                ? "Novidades"
-                : activeFilters.category?.length === 1
-                    ? mockProducts.find((p) => p.categorySlug === activeFilters.category[0])?.category || "Produtos"
+                : isNew
+                    ? "Novidades"
+                    : activeFilters.category?.length === 1
+                    ? products.find((p) => p.categorySlug === activeFilters.category[0])?.category || "Produtos"
                     : "Catálogo";
 
     return (
@@ -168,9 +213,9 @@ function CatalogPageContent() {
             <div className="bg-[var(--color-bg-elevated)] border-b border-[var(--color-border)]">
                 <div className="max-w-7xl mx-auto px-4 py-8">
                     <nav className="text-xs text-[var(--color-text-dim)] mb-3">
-                        <a href="/" className="hover:text-[var(--color-primary)] transition-colors">
+                        <Link href="/" className="hover:text-[var(--color-primary)] transition-colors">
                             Home
-                        </a>
+                        </Link>
                         <span className="mx-2">›</span>
                         <span className="text-[var(--color-text)]">{pageTitle}</span>
                     </nav>
@@ -284,7 +329,11 @@ function CatalogPageContent() {
                         </div>
 
                         {/* Product Grid */}
-                        {filteredProducts.length > 0 ? (
+                        {loadingProducts ? (
+                            <div className="text-center py-20">
+                                <p className="text-sm text-[var(--color-text-muted)]">Carregando catálogo real...</p>
+                            </div>
+                        ) : filteredProducts.length > 0 ? (
                             <div
                                 className={
                                     viewMode === "grid"
