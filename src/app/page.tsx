@@ -659,16 +659,24 @@ export default function HomePage() {
         </p>
         <div className="marquee-container">
           <div className="marquee-track">
-            {/* Double the logos for seamless loop */}
-            {[...brandLogos, ...brandLogos].map((logo, i) => (
-              <Image
-                key={`${logo.alt}-${i}`}
-                src={logo.src}
-                alt={logo.alt}
-                width={logo.w}
-                height={logo.h}
-                className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0 shrink-0"
-              />
+            {[0, 1].map((groupIndex) => (
+              <div
+                key={`brand-group-${groupIndex}`}
+                className="marquee-group"
+                aria-hidden={groupIndex === 1}
+              >
+                {brandLogos.map((logo, i) => (
+                  <Image
+                    key={`${groupIndex}-${logo.alt}-${i}`}
+                    src={logo.src}
+                    alt={logo.alt}
+                    width={logo.w}
+                    height={logo.h}
+                    loading="eager"
+                    className="h-8 w-auto opacity-40 hover:opacity-80 transition-opacity duration-300 grayscale hover:grayscale-0 shrink-0"
+                  />
+                ))}
+              </div>
             ))}
           </div>
         </div>
