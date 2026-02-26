@@ -20,10 +20,12 @@ import {
     Shield,
     ArrowRight,
     Calculator,
+    Check,
 } from "lucide-react";
 import { mockProducts, Product } from "@/lib/mock-products";
 import { CompatibilityChecker } from "@/components/product/CompatibilityChecker";
 import { RackCalculator } from "@/components/tools/RackCalculator";
+import { useCartStore } from "@/lib/cart-store";
 
 export default function ProductDetailPage() {
     const params = useParams();
@@ -35,6 +37,15 @@ export default function ProductDetailPage() {
     const [qty, setQty] = useState(1);
     const [cep, setCep] = useState("");
     const [showQuoteModal, setShowQuoteModal] = useState(false);
+    const [showAddedToast, setShowAddedToast] = useState(false);
+    const addItem = useCartStore((s) => s.addItem);
+
+    function handleAddToCart() {
+        if (!product) return;
+        addItem(product, qty);
+        setShowAddedToast(true);
+        setTimeout(() => setShowAddedToast(false), 2500);
+    }
 
     if (!product) {
         return (
@@ -268,9 +279,12 @@ export default function ProductDetailPage() {
 
                             {/* CTA Buttons */}
                             <div className="space-y-3">
-                                <button className="btn-success w-full flex items-center justify-center gap-2 text-base !py-4">
+                                <button
+                                    onClick={handleAddToCart}
+                                    className="btn-success w-full flex items-center justify-center gap-2 text-base !py-4"
+                                >
                                     <ShoppingCart size={20} />
-                                    Comprar Agora
+                                    Adicionar ao Carrinho
                                 </button>
                                 <button
                                     onClick={() => setShowQuoteModal(true)}
@@ -538,6 +552,19 @@ export default function ProductDetailPage() {
                                 </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Toast notification */}
+            {showAddedToast && (
+                <div className="fixed bottom-6 right-6 z-50 animate-[fadeInUp_0.3s_ease-out] bg-white border border-[var(--color-border)] rounded-xl shadow-xl px-5 py-3 flex items-center gap-3">
+                    <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                        <Check size={16} className="text-[var(--color-success)]" />
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium text-[var(--color-text)]">Adicionado ao carrinho</p>
+                        <p className="text-xs text-[var(--color-text-muted)]">{qty}x {product.name}</p>
                     </div>
                 </div>
             )}

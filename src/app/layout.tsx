@@ -3,6 +3,7 @@ import { Inter, Ubuntu_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { ClientProviders } from "@/components/layout/ClientProviders";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -52,9 +53,12 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${inter.variable} ${ubuntuMono.variable}`}>
       <body className="min-h-screen flex flex-col bg-[var(--color-bg)]">
         <Header />
-        <main className="flex-1">{children}</main>
+        <ClientProviders>
+          <main className="flex-1">{children}</main>
+        </ClientProviders>
         <Footer />
       </body>
     </html>
   );
 }
+

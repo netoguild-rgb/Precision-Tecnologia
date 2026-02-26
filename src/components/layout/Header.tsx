@@ -13,6 +13,7 @@ import {
     Zap,
     Phone,
 } from "lucide-react";
+import { useCartStore, cartTotalItems } from "@/lib/cart-store";
 
 const categories = [
     { name: "Switches", slug: "switches", icon: "🔌" },
@@ -29,6 +30,9 @@ export function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+
+    const totalItems = useCartStore(cartTotalItems);
+    const openDrawer = useCartStore((s) => s.openDrawer);
 
     return (
         <header className="sticky top-0 z-50">
@@ -58,25 +62,25 @@ export function Header() {
 
             {/* Main header — White Glass */}
             <div className="glass border-b border-[var(--color-border)]">
-                <div className="max-w-7xl mx-auto px-4 py-2">
+                <div className="max-w-7xl mx-auto px-4 py-3">
                     <div className="flex items-center justify-between gap-4">
                         {/* Logo — Precision Tecnologia + Huawei Partner */}
-                        <Link href="/" className="flex items-center gap-3 sm:gap-4 shrink-0 group min-w-0">
+                        <Link href="/" className="flex items-center gap-4 shrink-0 group">
                             <Image
-                                src="/images/precision-logo-cropped.png"
+                                src="/images/precision-logo.png"
                                 alt="Precision Tecnologia"
-                                width={802}
-                                height={230}
-                                className="h-[2.75rem] sm:h-[3.3rem] md:h-[3.85rem] w-auto max-w-[145px] sm:max-w-[188px] md:max-w-[232px] logo-precision"
+                                width={260}
+                                height={65}
+                                className="h-14 w-auto logo-precision"
                                 priority
                             />
-                            <div className="h-14 sm:h-16 w-px bg-[var(--color-border)] hidden sm:block" />
+                            <div className="h-8 w-px bg-[var(--color-border)] hidden sm:block" />
                             <Image
                                 src="/images/huawei-logo.png"
                                 alt="Huawei Enterprise Partner"
                                 width={80}
                                 height={26}
-                                className="h-6 sm:h-7 w-auto hidden sm:block opacity-60 group-hover:opacity-100 transition-opacity"
+                                className="h-5 w-auto hidden sm:block opacity-60 group-hover:opacity-100 transition-opacity"
                                 priority
                             />
                         </Link>
@@ -112,18 +116,21 @@ export function Header() {
                                 </div>
                             </Link>
 
-                            <Link
-                                href="/carrinho"
+                            <button
+                                onClick={openDrawer}
                                 className="relative flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[var(--color-bg-elevated)] transition-colors"
                             >
                                 <ShoppingCart
                                     size={20}
                                     className="text-[var(--color-text-muted)]"
                                 />
-                                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-[var(--color-accent)] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                                    0
+                                <span className={`absolute -top-0.5 -right-0.5 w-5 h-5 text-white text-[10px] font-bold rounded-full flex items-center justify-center transition-all ${totalItems > 0
+                                        ? "bg-[var(--color-accent)] scale-100"
+                                        : "bg-[var(--color-text-dim)] scale-90"
+                                    }`}>
+                                    {totalItems}
                                 </span>
-                            </Link>
+                            </button>
 
                             <button
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -145,7 +152,7 @@ export function Header() {
                                 onMouseEnter={() => setIsCategoriesOpen(true)}
                                 onMouseLeave={() => setIsCategoriesOpen(false)}
                             >
-                                <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] transition-colors">
+                                <button className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] transition-colors">
                                     <Menu size={16} />
                                     Categorias
                                     <ChevronDown size={14} />
@@ -170,26 +177,26 @@ export function Header() {
                             {/* Quick links */}
                             <Link
                                 href="/produtos?stockStatus=IN_STOCK"
-                                className="px-4 py-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors flex items-center gap-1.5"
+                                className="px-4 py-3 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors flex items-center gap-1.5"
                             >
                                 <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] pulse-dot" />
                                 Pronta Entrega
                             </Link>
                             <Link
                                 href="/produtos?featured=true"
-                                className="px-4 py-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+                                className="px-4 py-3 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
                             >
                                 Destaques
                             </Link>
                             <Link
                                 href="/produtos?isNew=true"
-                                className="px-4 py-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+                                className="px-4 py-3 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
                             >
                                 Novidades
                             </Link>
                             <Link
                                 href="/cotacao"
-                                className="px-4 py-2 text-sm text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] font-medium transition-colors"
+                                className="px-4 py-3 text-sm text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] font-medium transition-colors"
                             >
                                 Solicitar Cotação B2B
                             </Link>

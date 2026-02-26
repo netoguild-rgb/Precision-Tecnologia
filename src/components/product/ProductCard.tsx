@@ -1,13 +1,24 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
-import { Network, Package } from "lucide-react";
+import { Network, ShoppingCart } from "lucide-react";
 import { Product } from "@/lib/mock-products";
+import { useCartStore } from "@/lib/cart-store";
 
 interface ProductCardProps {
     product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+    const addItem = useCartStore((s) => s.addItem);
+
+    function handleAddToCart(e: React.MouseEvent) {
+        e.preventDefault();
+        e.stopPropagation();
+        addItem(product, 1);
+    }
+
     return (
         <Link
             href={`/produtos/${product.slug}`}
@@ -32,18 +43,18 @@ export function ProductCard({ product }: ProductCardProps) {
                 {/* Stock badge */}
                 <span
                     className={`absolute top-3 left-3 badge-stock ${product.stockStatus === "IN_STOCK"
-                            ? "badge-stock-available"
-                            : product.stockStatus === "ON_ORDER"
-                                ? "badge-stock-order"
-                                : "badge-stock-out"
+                        ? "badge-stock-available"
+                        : product.stockStatus === "ON_ORDER"
+                            ? "badge-stock-order"
+                            : "badge-stock-out"
                         }`}
                 >
                     <span
                         className={`w-1.5 h-1.5 rounded-full pulse-dot ${product.stockStatus === "IN_STOCK"
-                                ? "bg-[var(--color-accent)]"
-                                : product.stockStatus === "ON_ORDER"
-                                    ? "bg-[var(--color-warning)]"
-                                    : "bg-[var(--color-danger)]"
+                            ? "bg-[var(--color-accent)]"
+                            : product.stockStatus === "ON_ORDER"
+                                ? "bg-[var(--color-warning)]"
+                                : "bg-[var(--color-danger)]"
                             }`}
                     />
                     {product.stockLabel}
@@ -78,10 +89,13 @@ export function ProductCard({ product }: ProductCardProps) {
                             </p>
                         )}
                     </div>
-                    <span className="btn-primary !py-2 !px-3 text-xs flex items-center gap-1.5">
-                        <Package size={13} />
+                    <button
+                        onClick={handleAddToCart}
+                        className="btn-primary !py-2 !px-3 text-xs flex items-center gap-1.5 hover:scale-105 active:scale-95 transition-transform"
+                    >
+                        <ShoppingCart size={13} />
                         Comprar
-                    </span>
+                    </button>
                 </div>
             </div>
         </Link>
