@@ -54,13 +54,9 @@ export function Footer() {
                     <div>
                         <div className="flex items-center gap-3 mb-4">
                             <Link href="/" aria-label="Ir para a Home">
-                                <Image
-                                    src="/images/precision-logo-cropped.png"
-                                    alt="Precision Tecnologia"
-                                    width={802}
-                                    height={230}
-                                    className="h-10 sm:h-11 w-auto"
-                                />
+                                <span className="h-10 sm:h-11 px-5 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white font-bold text-base tracking-wide shadow-md hover:shadow-lg hover:scale-[1.03] transition-all duration-300">
+                                    Protótipo
+                                </span>
                             </Link>
                         </div>
                         <div className="flex items-center gap-3 mb-4">

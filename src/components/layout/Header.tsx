@@ -143,14 +143,9 @@ export function Header() {
                     <div className="flex items-center justify-between gap-4">
                         {/* Logo — Precision Tecnologia + Huawei Partner */}
                         <Link href="/" onClick={handleLogoClick} className="flex items-center gap-4 shrink-0 group">
-                            <Image
-                                src="/images/precision-logo.png"
-                                alt="Precision Tecnologia"
-                                width={260}
-                                height={65}
-                                className="h-14 w-auto logo-precision"
-                                priority
-                            />
+                            <span className="h-14 px-6 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] text-white font-bold text-lg tracking-wide shadow-md hover:shadow-lg hover:scale-[1.03] transition-all duration-300">
+                                Protótipo
+                            </span>
                             <div className="h-8 w-px bg-[var(--color-border)] hidden sm:block" />
                             <Image
                                 src="/images/huawei-logo.png"

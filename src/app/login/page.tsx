@@ -64,13 +64,9 @@ function LoginForm() {
 
                     <div className="relative">
                         <Link href="/" className="inline-block" aria-label="Ir para a Home">
-                            <Image
-                                src="/images/precision-logo-cropped.png"
-                                alt="Precision Tecnologia"
-                                width={802}
-                                height={230}
-                                className="h-12 w-auto mx-auto mb-8 brightness-0 invert"
-                            />
+                            <span className="h-12 px-6 inline-flex items-center justify-center rounded-xl bg-white/10 border border-white/20 text-white font-bold text-lg tracking-wide mb-8 mx-auto backdrop-blur-sm hover:bg-white/20 transition-all duration-300">
+                                Protótipo
+                            </span>
                         </Link>
 
                         <h2 className="text-2xl font-bold text-white mb-3">
