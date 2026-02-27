@@ -228,7 +228,7 @@ export default function HomePage() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 py-20 lg:py-28 w-full">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
             {/* Left — Text Content */}
-            <div className={`flex-1 max-w-2xl transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+            <div className={`flex-1 max-w-2xl hero-focus-panel transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
               <div className="hero-badge inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full mb-8">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0EA5E9] opacity-75" />
@@ -283,7 +283,7 @@ export default function HomePage() {
                 {/* Glow behind card */}
                 <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-[#1B4B8A]/15 to-[#5B9EC9]/15 blur-3xl" />
 
-                <div className="relative glass-hero rounded-2xl p-8 md:p-10 border border-white/10 overflow-hidden">
+                <div className="relative glass-hero hero-brand-panel rounded-2xl p-8 md:p-10 border border-white/10 overflow-hidden">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
 
                   <Image

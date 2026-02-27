@@ -255,6 +255,32 @@ body {
   -webkit-backdrop-filter: blur(24px);
 }
 
+/* Localized blur for hero text content only */
+.hero-focus-panel {
+  background: rgba(5, 16, 34, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+}
+
+/* Extra blur only on the brand card area */
+.hero-brand-panel {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+@media (max-width: 640px) {
+  .hero-focus-panel {
+    padding: 1rem;
+    border-radius: 1.25rem;
+  }
+}
+
 /* Hero badge */
 .hero-badge {
   background: rgba(27, 75, 138, 0.2);
