@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Bot, Loader2, MessageCircle, SendHorizontal, Sparkles, X } from "lucide-react";
+import { Loader2, SendHorizontal, X } from "lucide-react";
 
 type AssistantSuggestion = {
     slug: string;
@@ -210,9 +211,16 @@ export function SalesAssistantWidget() {
             {isOpen && (
                 <div className="sales-chat-panel fixed z-[9998] bottom-24 left-3 right-3 md:left-auto md:right-6 md:w-[390px] rounded-3xl border border-white/40 bg-white/90 shadow-[0_24px_80px_rgba(11,39,81,0.28)] backdrop-blur-xl overflow-hidden">
                     <div className="sales-chat-header text-white px-4 py-3.5 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <span className="h-8 w-8 rounded-xl bg-white/18 border border-white/20 inline-flex items-center justify-center">
-                                <Bot size={15} />
+                        <div className="flex items-center gap-2.5">
+                            <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full shadow-[0_6px_16px_rgba(9,30,64,0.35)]">
+                                <Image
+                                    src="/images/chat.png"
+                                    alt="Rosto do assistente"
+                                    fill
+                                    sizes="36px"
+                                    className="object-cover scale-125"
+                                    priority
+                                />
                             </span>
                             <div>
                                 <p className="text-sm font-semibold leading-none tracking-tight">Assistente de Vendas</p>
@@ -416,16 +424,21 @@ export function SalesAssistantWidget() {
             <button
                 type="button"
                 onClick={() => setIsOpen((prev) => !prev)}
-                className={`sales-chat-fab fixed bottom-6 right-4 md:right-6 z-[9999] h-14 w-14 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] text-white shadow-[0_18px_36px_rgba(13,43,82,0.35)] border border-white/20 transition-all ${
+                className={`sales-chat-fab fixed bottom-6 right-4 md:right-6 z-[9999] h-14 w-14 rounded-full bg-transparent text-white shadow-[0_18px_36px_rgba(13,43,82,0.35)] transition-all ${
                     isOpen ? "scale-[0.92] rotate-[-8deg]" : "hover:scale-105"
                 }`}
                 aria-label="Abrir assistente de vendas"
             >
-                <span className="relative inline-flex items-center justify-center">
-                    <MessageCircle size={22} />
-                    <Sparkles size={12} className="absolute -right-3 -top-2 text-cyan-200" />
-                    <span className="sales-chat-fab-dot" />
+                <span className="relative block h-full w-full overflow-hidden rounded-full">
+                    <Image
+                        src="/images/chat.png"
+                        alt="Abrir assistente"
+                        fill
+                        sizes="56px"
+                        className="object-cover scale-125"
+                    />
                 </span>
+                <span className="sales-chat-fab-dot" />
             </button>
         </>
     );
