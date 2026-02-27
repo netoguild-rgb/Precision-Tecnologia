@@ -212,13 +212,13 @@ export function SalesAssistantWidget() {
                 <div className="sales-chat-panel fixed z-[9998] bottom-24 left-3 right-3 md:left-auto md:right-6 md:w-[390px] rounded-3xl border border-white/40 bg-white/90 shadow-[0_24px_80px_rgba(11,39,81,0.28)] backdrop-blur-xl overflow-hidden">
                     <div className="sales-chat-header text-white px-4 py-3.5 flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
-                            <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full shadow-[0_6px_16px_rgba(9,30,64,0.35)]">
+                            <span className="sales-chat-avatar relative h-9 w-9 shrink-0 overflow-hidden rounded-full">
                                 <Image
                                     src="/images/chat2.png"
                                     alt="Rosto do assistente"
                                     fill
                                     sizes="36px"
-                                    className="object-cover scale-125 rounded-full"
+                                    className="sales-chat-avatar-image object-cover scale-125 rounded-full"
                                     priority
                                 />
                             </span>
@@ -429,14 +429,15 @@ export function SalesAssistantWidget() {
                 }`}
                 aria-label="Abrir assistente de vendas"
             >
-                <span className="relative block h-full w-full overflow-hidden rounded-full">
+                <span className="sales-chat-fab-inner relative block h-full w-full overflow-hidden rounded-full">
                     <Image
                         src="/images/chat2.png"
                         alt="Abrir assistente"
                         fill
                         sizes="56px"
-                        className="object-cover scale-125 rounded-full"
+                        className="sales-chat-fab-image object-cover scale-125 rounded-full"
                     />
+                    <span aria-hidden className="sales-chat-fab-glint" />
                 </span>
                 <span className="sales-chat-fab-dot" />
             </button>
