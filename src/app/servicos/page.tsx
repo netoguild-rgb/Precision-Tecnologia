@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import {
     ArrowRight,
@@ -181,19 +182,65 @@ const testimonials = [
 
 export default function ServicosPage() {
     const scrollRef = useScrollReveal();
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [videoFaded, setVideoFaded] = useState(false);
+
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        const handleEnded = () => {
+            setVideoFaded(true);
+        };
+
+        video.addEventListener("ended", handleEnded);
+        video.play().catch(() => {
+            // Autoplay blocked — fade immediately to gradient
+            setVideoFaded(true);
+        });
+
+        return () => video.removeEventListener("ended", handleEnded);
+    }, []);
 
     return (
         <div ref={scrollRef} className="min-h-screen bg-[var(--color-bg)]">
             {/* ════════════════════════════
-          HERO
+          HERO — Video + Gradient
           ════════════════════════════ */}
             <section className="relative overflow-hidden bg-gradient-to-br from-[#0a1628] via-[#112240] to-[#0a1628] text-white">
-                {/* Animated grid */}
+                {/* Video background — plays once, then fades out smoothly */}
+                <video
+                    ref={videoRef}
+                    muted
+                    playsInline
+                    preload="auto"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{
+                        opacity: videoFaded ? 0 : 1,
+                        transition: "opacity 2s ease-in-out",
+                        zIndex: 1,
+                    }}
+                >
+                    <source src="/videos/datacenter-robots.mp4" type="video/mp4" />
+                </video>
+
+                {/* Dark overlay on video for text readability */}
+                <div
+                    className="absolute inset-0 bg-gradient-to-b from-[#0a1628]/60 via-[#0a1628]/40 to-[#0a1628]/70"
+                    style={{
+                        opacity: videoFaded ? 0 : 1,
+                        transition: "opacity 2s ease-in-out",
+                        zIndex: 1,
+                    }}
+                />
+
+                {/* Gradient decorations (always present, revealed after video fades) */}
                 <div className="absolute inset-0 grid-pattern opacity-[0.06]" />
                 <div className="absolute top-0 left-1/3 w-[600px] h-[600px] bg-[#1B4B8A]/20 rounded-full blur-[120px]" />
                 <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#0EA5E9]/10 rounded-full blur-[100px]" />
 
-                <div className="relative max-w-7xl mx-auto px-4 py-20 md:py-28">
+                {/* Content */}
+                <div className="relative max-w-7xl mx-auto px-4 py-20 md:py-28" style={{ zIndex: 2 }}>
                     <div className="max-w-3xl">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6 border border-white/20">
                             <Database size={14} />
@@ -249,8 +296,8 @@ export default function ServicosPage() {
                     </div>
                 </div>
 
-                {/* Bottom gradient */}
-                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
+                {/* Bottom gradient to white */}
+                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" style={{ zIndex: 3 }} />
             </section>
 
             {/* ════════════════════════════
