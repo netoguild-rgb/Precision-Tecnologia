@@ -18,18 +18,27 @@ import {
     Shield,
     Truck,
     Briefcase,
+    Network,
+    Router,
+    Wifi,
+    Cpu,
+    Cable,
+    LayoutGrid,
+    Plug,
+    ShieldCheck,
+    type LucideIcon,
 } from "lucide-react";
 import { useCartStore, cartTotalItems } from "@/lib/cart-store";
 
-const categories = [
-    { name: "Switches", slug: "switches", icon: "🔌" },
-    { name: "Roteadores", slug: "roteadores", icon: "📡" },
-    { name: "Access Points", slug: "access-points", icon: "📶" },
-    { name: "GBICs / SFP", slug: "gbics-sfp", icon: "🔗" },
-    { name: "Patch Cords", slug: "patch-cords", icon: "🔌" },
-    { name: "Patch Panels", slug: "patch-panels", icon: "📋" },
-    { name: "Conectores", slug: "conectores", icon: "🔧" },
-    { name: "Firewalls", slug: "firewalls", icon: "🛡️" },
+const categories: { name: string; slug: string; icon: LucideIcon }[] = [
+    { name: "Switches", slug: "switches", icon: Network },
+    { name: "Roteadores", slug: "roteadores", icon: Router },
+    { name: "Access Points", slug: "access-points", icon: Wifi },
+    { name: "GBICs / SFP", slug: "gbics-sfp", icon: Cpu },
+    { name: "Patch Cords", slug: "patch-cords", icon: Cable },
+    { name: "Patch Panels", slug: "patch-panels", icon: LayoutGrid },
+    { name: "Conectores", slug: "conectores", icon: Plug },
+    { name: "Firewalls", slug: "firewalls", icon: ShieldCheck },
 ];
 
 const promoMessages = [
@@ -273,16 +282,19 @@ export function Header() {
 
                                 {isCategoriesOpen && (
                                     <div className="absolute top-full left-0 w-64 bg-white rounded-xl shadow-xl border border-[var(--color-border)] py-2 z-50">
-                                        {categories.map((cat) => (
-                                            <Link
-                                                key={cat.slug}
-                                                href={`/produtos?category=${cat.slug}`}
-                                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--color-text)] hover:bg-[var(--color-bg-elevated)] transition-colors"
-                                            >
-                                                <span className="text-lg">{cat.icon}</span>
-                                                {cat.name}
-                                            </Link>
-                                        ))}
+                                        {categories.map((cat) => {
+                                            const IconComp = cat.icon;
+                                            return (
+                                                <Link
+                                                    key={cat.slug}
+                                                    href={`/produtos?category=${cat.slug}`}
+                                                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--color-text)] hover:bg-[var(--color-bg-elevated)] transition-colors"
+                                                >
+                                                    <IconComp size={18} className="text-[var(--color-primary)]" />
+                                                    {cat.name}
+                                                </Link>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>
@@ -345,7 +357,7 @@ export function Header() {
                                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--color-text)] hover:bg-[var(--color-bg-elevated)] transition-colors"
                                     onClick={() => setIsMenuOpen(false)}
                                 >
-                                    <span>{cat.icon}</span>
+                                    {(() => { const IconComp = cat.icon; return <IconComp size={18} className="text-[var(--color-primary)]" />; })()}
                                     {cat.name}
                                 </Link>
                             ))}
