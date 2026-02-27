@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
     Search,
@@ -53,6 +53,7 @@ export function Header() {
     const totalItems = useCartStore(cartTotalItems);
     const openDrawer = useCartStore((s) => s.openDrawer);
     const router = useRouter();
+    const pathname = usePathname();
 
     // Rotating promo banner
     useEffect(() => {
@@ -80,6 +81,14 @@ export function Header() {
             router.push(`/produtos?search=${encodeURIComponent(q)}`);
             setSearchQuery("");
             setIsMenuOpen(false);
+        }
+    }
+
+    function handleLogoClick(event: React.MouseEvent<HTMLAnchorElement>) {
+        setIsMenuOpen(false);
+        if (pathname === "/") {
+            event.preventDefault();
+            window.scrollTo({ top: 0, behavior: "smooth" });
         }
     }
 
@@ -124,7 +133,7 @@ export function Header() {
                 <div className="max-w-7xl mx-auto px-4 py-3">
                     <div className="flex items-center justify-between gap-4">
                         {/* Logo — Precision Tecnologia + Huawei Partner */}
-                        <Link href="/" className="flex items-center gap-4 shrink-0 group">
+                        <Link href="/" onClick={handleLogoClick} className="flex items-center gap-4 shrink-0 group">
                             <Image
                                 src="/images/precision-logo.png"
                                 alt="Precision Tecnologia"

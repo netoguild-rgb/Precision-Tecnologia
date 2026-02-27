@@ -214,11 +214,11 @@ export function SalesAssistantWidget() {
                         <div className="flex items-center gap-2.5">
                             <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full shadow-[0_6px_16px_rgba(9,30,64,0.35)]">
                                 <Image
-                                    src="/images/chat.png"
+                                    src="/images/chat2.png"
                                     alt="Rosto do assistente"
                                     fill
                                     sizes="36px"
-                                    className="object-cover scale-125"
+                                    className="object-cover scale-125 rounded-full"
                                     priority
                                 />
                             </span>
@@ -431,11 +431,11 @@ export function SalesAssistantWidget() {
             >
                 <span className="relative block h-full w-full overflow-hidden rounded-full">
                     <Image
-                        src="/images/chat.png"
+                        src="/images/chat2.png"
                         alt="Abrir assistente"
                         fill
                         sizes="56px"
-                        className="object-cover scale-125"
+                        className="object-cover scale-125 rounded-full"
                     />
                 </span>
                 <span className="sales-chat-fab-dot" />
