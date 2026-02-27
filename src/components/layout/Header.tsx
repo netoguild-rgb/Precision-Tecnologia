@@ -315,6 +315,12 @@ export function Header() {
                                 Novidades
                             </Link>
                             <Link
+                                href="/servicos"
+                                className="px-4 py-3 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+                            >
+                                Serviços
+                            </Link>
+                            <Link
                                 href="/cotacao"
                                 className="px-4 py-3 text-sm text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] font-medium transition-colors"
                             >
@@ -364,6 +370,14 @@ export function Header() {
                                 >
                                     <span>📦</span>
                                     Rastrear Pedido
+                                </Link>
+                                <Link
+                                    href="/servicos"
+                                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[var(--color-text)] hover:bg-[var(--color-bg-elevated)] transition-colors"
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    <span>🖥️</span>
+                                    Serviços
                                 </Link>
                                 <Link
                                     href="/cotacao"
